@@ -1,6 +1,6 @@
 =head1 LICENSE
 
-Copyright [1999-2013] Wellcome Trust Sanger Institute and the EMBL-European Bioinformatics Institute
+Copyright [1999-2014] Wellcome Trust Sanger Institute and the EMBL-European Bioinformatics Institute
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 =cut
-
-# $Id: SpeciesHandler.pm,v 1.3 2014-01-23 16:25:17 nl2 Exp $
 
 package EnsEMBL::Web::Apache::SpeciesHandler;
 
@@ -58,12 +56,8 @@ sub handler_species {
     
   if ($flag && $script) {
     $ENV{'ENSEMBL_FACTORY'}   = 'MultipleLocation' if $type eq 'Location' && $action =~ /^Multi(Ideogram.*|Top|Bottom)?$/;
+    $ENV{'ENSEMBL_COMPONENT'} = join  '::', 'EnsEMBL', $plugin, 'Component', $type, $action =~ s/__/::/gr if $script eq 'Component';
     
-    if ($script eq 'Component') {
-      (my $component_action = $action) =~ s/__/::/g;
-      $ENV{'ENSEMBL_COMPONENT'} = join  '::', 'EnsEMBL', $plugin, 'Component', $type, $component_action;
-    }
-  
     $redirect_if_different = 0;
   } else {
     $script = $seg;

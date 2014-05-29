@@ -1,6 +1,6 @@
 =head1 LICENSE
 
-Copyright [1999-2013] Wellcome Trust Sanger Institute and the EMBL-European Bioinformatics Institute
+Copyright [1999-2014] Wellcome Trust Sanger Institute and the EMBL-European Bioinformatics Institute
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -242,7 +242,7 @@ sub handler {
   my $r = shift; # Get the connection handler
   
   $ENSEMBL_WEB_REGISTRY->timer->set_name('REQUEST ' . $r->uri);
-  
+
   if ($r->headers_in->{'User-Agent'} =~ /Spider|Googlebot|Sogou|Baiduspider|Ahrefs|Yahoo|Bing|Soso|YYSpider/i) {
     # disallow pesky search bots
     $ENSEMBL_WEB_REGISTRY->timer_push('Handler "DECLINED"', undef, 'Apache');
@@ -261,16 +261,36 @@ sub handler {
   my @raw_path = split '/', $file;
   shift @raw_path; # Always empty
 
-  ## Simple redirect to VEP
   my $redirect = 0;
+  ## Redirect to contact form
+  if (scalar(@raw_path) == 1 && $raw_path[0] =~ /^contact$/i) {
+    $r->uri('/Help/Contact');
+    $redirect = 1;
+  }  
 
-  if ($file =~ /\/info\/docs\/variation\/vep\/vep_script.html/) {
+  ## Fix URL for V/SV Explore pages
+  if ($raw_path[1] =~ /Variation/ && $raw_path[2] eq 'Summary') {
+    $file =~ s/Summary/Explore/;
+    $file .= '?'.$querystring if $querystring;
+    $r->uri($file);
+    $redirect = 1;
+  }  
+
+  ## Simple redirect to VEP
+  
+  if ($SiteDefs::ENSEMBL_SITETYPE eq 'Pre' && $file =~ /\/vep/i) { ## Pre has no VEP, so redirect to tools page
+    $r->uri('/info/docs/tools/index.html');
+    $redirect = 1;
+  } elsif ($file =~ /\/info\/docs\/variation\/vep\/vep_script.html/) {
     $r->uri('/info/docs/tools/vep/script/index.html');
     $redirect = 1;
   } elsif (($raw_path[0] && $raw_path[0] =~ /^VEP$/i) || $file =~ /\/info\/docs\/variation\/vep\//) {
     $r->uri('/info/docs/tools/vep/index.html');
     $redirect = 1;
-  } elsif ($file =~ /\/info\/docs\/(variation|funcgen|compara|genebuild|microarray)/) {
+  }
+
+  ## Redirect moved documentation 
+  if ($file =~ /\/info\/docs\/(variation|funcgen|compara|genebuild|microarray)/) {
     $file =~ s/docs/genome/;
     $r->uri($file);
     $redirect = 1;
@@ -348,7 +368,9 @@ sub handler {
       } elsif ($object_type eq 'Translation') {
         $uri .= "Transcript/ProteinSummary?t=$stable_id";
       } elsif ($object_type eq 'GeneTree') {
-        $uri = "/Multi/GeneTree?gt=$stable_id";
+        $uri = "/Multi/GeneTree/Image?gt=$stable_id";
+      } elsif ($object_type eq 'Family') {
+        $uri = "/Multi/Family/Details?fm=$stable_id";
       } else {
         $uri .= "psychic?q=$stable_id";
       }
@@ -779,6 +801,5 @@ sub _referrer_is_mirror {
     map { ref $_ eq 'HASH' ? _referrer_is_mirror( $_, $referrer ) : $referrer eq $_ ? return 'true' : undef }
       values %$ensembl_mirrors;
 }
-
 
 1;
