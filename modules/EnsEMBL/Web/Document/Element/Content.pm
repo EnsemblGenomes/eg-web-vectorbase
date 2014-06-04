@@ -26,8 +26,10 @@ use previous qw(content);
 sub content {
   my $self    = shift;
   my $content = $self->PREV::content;
-  
-  if (my $url = $self->hub->species_defs->WEBAPOLLO_URL) {
+  my $species_defs = $self->hub->species_defs;
+
+  if (my $sp = $species_defs->WEBAPOLLO_SPECIES) {
+    my $url = $species_defs->WEBAPOLLO_URL_TEMPLATE =~ s/%/$sp/r;
     $content .= qq(<input type="hidden" id="webapollo-url" value="$url" />);
   }
 
