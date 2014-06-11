@@ -16,16 +16,17 @@ limitations under the License.
 
 =cut
 
-package EnsEMBL::Web::Document::Element::Content;
+package EnsEMBL::Web::Component::Location::ViewTop;
 
 use strict;
-
 use previous qw(content);
 
 ## VB - hack to make web apollo url avaialble to zmenu and genoverse javascript   
 sub content {
   my $self    = shift;
   my $content = $self->PREV::content;
+  return if !$content;
+  
   my $species_defs = $self->hub->species_defs;
 
   if (my $sp = $species_defs->WEBAPOLLO_SPECIES) {
