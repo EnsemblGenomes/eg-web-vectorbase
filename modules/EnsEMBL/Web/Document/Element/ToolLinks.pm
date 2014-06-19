@@ -25,7 +25,7 @@ sub content {
   push @links,   '<a class="constant" href="/navigation/community">Community</a>';
   push @links,   '<a class="constant" href="/contact">Contact us</a>';
   push @links,   '<a class="constant" href="/ensembl_tools.html">Browser Tools</a>';
-  push @links,   '<a class="constant" href="/info/index.html">Browser Docs</a>';
+  push @links,   '<a class="constant" href="/info/website">Browser Help</a>';
 
   my $last  = pop @links;
   my $tools = join '', map "<li>$_</li>", @links;
