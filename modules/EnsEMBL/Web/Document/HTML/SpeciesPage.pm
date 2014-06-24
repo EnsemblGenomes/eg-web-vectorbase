@@ -4,6 +4,7 @@ package EnsEMBL::Web::Document::HTML::SpeciesPage;
 
 use strict;
 use warnings;
+no warnings 'uninitialized';
 use Data::Dumper;
 use HTML::Entities qw(encode_entities);
 use EnsEMBL::Web::RegObj;
