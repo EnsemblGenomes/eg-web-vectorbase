@@ -785,7 +785,7 @@ sub _slice_fetch {
 #    if ($feat_cs->equals($slice_cs)) {
     chop(my $slice_v = $slice_cs->{version});
     chop(my $feat_v = $feat_cs->{version});
-    if ($feat_cs->equals($slice_cs) || 1) {    
+    if ($feat_cs->equals($slice_cs) || $feat_v eq $slice_v) {    
 ##      
       # no mapping is required if this is the same coord system
 
