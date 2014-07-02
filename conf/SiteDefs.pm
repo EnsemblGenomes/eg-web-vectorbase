@@ -34,7 +34,6 @@ sub update_conf {
   $SiteDefs::__species_aliases{ 'Ixodes_scapularis'} = [qw(is ixodes blacklegged_tick black_legged_tick I.scapularis)];
   $SiteDefs::__species_aliases{ 'Pediculus_humanus' } = [qw(ph pediculus body_louse)];
   $SiteDefs::__species_aliases{ 'Rhodnius_prolixus' } = [qw(rp rhodnius triatomid_bug R.prolixus)];
-  $SiteDefs::__species_aliases{ 'Glossina_morsitans' } = [qw(gm glossina tse_tse_fly G.morsitans)];
   $SiteDefs::__species_aliases{ 'Rhodnius_prolixus' } = [qw(rp rhodnius triatomid_bug R.prolixus)];
   $SiteDefs::__species_aliases{ 'Phlebotomus_papatasi' } = [qw(pp)];
   $SiteDefs::__species_aliases{ 'Lutzomyia_longipalpis' } = [qw(ll)];
@@ -63,6 +62,12 @@ sub update_conf {
   $SiteDefs::__species_aliases{ 'Anopheles_merus' } = [qw(A.merus)];
   $SiteDefs::__species_aliases{ 'Anopheles_sinensis' } = [qw(A.sinensis)];
   $SiteDefs::__species_aliases{ 'Anopheles_coluzzii' } = [qw(A.coluzzii)];
+
+  $SiteDefs::__species_aliases{ 'Glossina_morsitans' } = [qw(gm glossina tse_tse_fly G.morsitans)];
+  $SiteDefs::__species_aliases{ 'Glossina_austeni' } = [qw(Glossina_austeni)];
+  $SiteDefs::__species_aliases{ 'Glossina_brevipalpis' } = [qw(Glossina_brevipalpis)];
+  $SiteDefs::__species_aliases{ 'Glossina_fuscipes' } = [qw(Glossina_fuscipes)];
+  $SiteDefs::__species_aliases{ 'Glossina_pallidipes' } = [qw(Glossina_pallidipes)];
 
   @SiteDefs::ENSEMBL_PERL_DIRS    = (
     $SiteDefs::ENSEMBL_SERVERROOT.'/perl',
