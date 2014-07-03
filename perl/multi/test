@@ -1,0 +1,15 @@
+use strict;
+use warnings;
+use CGI;
+use Bio::EnsEMBL::Registry;
+
+my $q   = CGI->new;
+my $hello = $q->param('hello');
+
+my $slice_adaptor = Bio::EnsEMBL::Registry->get_adaptor( 'anopheles_gambiae', 'Core', 'Slice' );
+my $slice         = $slice_adaptor->fetch_by_region( 'chromosome', '2L', 1, 1000 );
+
+print "<html><head><title>Test</title></head><body>";
+print "<p>Hello $hello</p>";
+print "<p>Slice length: " . $slice->length . "</p>";
+print "</body></html>";

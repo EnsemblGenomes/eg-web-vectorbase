@@ -135,7 +135,7 @@ sub handler_species {
   
   ## VB - for some reason content type must be set for status report
   ##      maybe the real problem is elsewhere, but this works for now...
-  $r->content_type('text/html') if $to_execute =~ /status_report/;
+  $r->content_type('text/html') if $to_execute =~ /(multi|common)/;
   ## /VB
   
   if ($to_execute && -e $to_execute) {
