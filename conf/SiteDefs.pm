@@ -84,7 +84,7 @@ sub update_conf {
   $SiteDefs::SITE_FTP               = '/downloads';
   
   $SiteDefs::VECTORBASE_SEARCH_SITE        = "https://www.vectorbase.org";
-  $SiteDefs::VECTORBASE_EXPRESSION_BROWSER = 'http://funcgen.vectorbase.org/expression-browser';
+  $SiteDefs::VECTORBASE_EXPRESSION_BROWSER = 'https://www.vectorbase.org/expression-browser';
   $SiteDefs::VECTORBASE_FTP_PREFIX         = 'ftpi';
   
   $SiteDefs::ENSEMBL_LOGINS = 0;
