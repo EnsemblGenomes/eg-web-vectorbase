@@ -203,14 +203,16 @@ sub _summarise_variation_db {
   
 #--------- Add in phenotype information
   my $pf_aref = $dbh->selectall_arrayref(qq{
-    SELECT type, count(*)
-    FROM phenotype_feature
-    GROUP BY type
+    SELECT pf.type, GROUP_CONCAT(DISTINCT s.name), count(pf.phenotype_feature_id)
+    FROM phenotype_feature pf, source s
+    WHERE pf.source_id=s.source_id AND pf.is_significant=1 AND pf.type!='SupportingStructuralVariation'
+    GROUP BY pf.type
   });
   
   for(@$pf_aref) {
-    $self->db_details($db_name)->{'tables'}{'phenotypes'}{'rows'} += $_->[1];
-    $self->db_details($db_name)->{'tables'}{'phenotypes'}{'types'}{$_->[0]} = $_->[1];
+    $self->db_details($db_name)->{'tables'}{'phenotypes'}{'rows'} += $_->[2];
+    $self->db_details($db_name)->{'tables'}{'phenotypes'}{'types'}{$_->[0]}{'count'} = $_->[2];
+    $self->db_details($db_name)->{'tables'}{'phenotypes'}{'types'}{$_->[0]}{'sources'} = $_->[1];
   }
 
 #--------- Add in somatic mutation information
@@ -339,6 +341,7 @@ sub _summarise_funcgen_db {
 #      group by a.name'
 #  );
 
+
 ## VB - add probe descriptions
   $t_aref = $dbh->selectall_arrayref(
     'select a.vendor, a.name, a.array_id, a.description
@@ -370,8 +373,8 @@ sub _summarise_funcgen_db {
   }
   $sth->finish;
 ## /VB
-  
-  
+
+
 #
 # * functional genomics tracks
 #
@@ -409,7 +412,8 @@ sub _summarise_funcgen_db {
       join cell_type c using (cell_type_id)
       join result_set_input using (result_set_id)
       join input_subset on input_subset_id = table_id
-      join experiment using (experiment_id) 
+      join experiment
+        on input_subset.experiment_id = experiment.experiment_id
       join experimental_group g using (experimental_group_id) 
      where feature_class = 'dna_methylation' 
        and table_name = 'input_subset'
