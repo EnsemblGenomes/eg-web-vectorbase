@@ -10,7 +10,14 @@ sub init {
     opt_lines       => 1,  # register lines
     spritelib       => { default => $self->species_defs->ENSEMBL_WEBROOT . '/htdocs/img/sprites' }
   });
-
+  my $sp_img_48 = $self->species_defs->ENSEMBL_WEBROOT . '/../public-plugins/ensembl/htdocs/i/species/48'; # XXX make configurable
+  if(-e $sp_img_48) {
+    $self->set_parameters({ spritelib => {
+      %{$self->get_parameter('spritelib')||{}},
+      species => $sp_img_48,
+    }});
+  }
+  
   # Add menus in the order you want them for this display
 ## VB  
   $self->create_menus(qw(

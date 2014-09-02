@@ -11,6 +11,7 @@ sub modify_tree {
   $self->delete_node('Transcript') unless $sample_data->{'TRANSCRIPT_PARAM'};
   
   $self->delete_node('WhatsNew');
+  $self->get_node('Annotation')->data->{'title'} = 'Details';
 }
 
 1;

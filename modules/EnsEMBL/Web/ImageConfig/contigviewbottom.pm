@@ -90,6 +90,27 @@ sub init {
   );
   
   $self->add_track('decorations', 'gc_plot', '%GC', 'gcplot', { display => 'normal',  strand => 'r', description => 'Shows percentage of Gs & Cs in region', sortable => 1 });
+
+  my $gencode_version = $self->hub->species_defs->GENCODE ? $self->hub->species_defs->GENCODE->{'version'} : '';
+  $self->add_track('transcript', 'gencode', "Basic Gene Annotations from GENCODE $gencode_version", '_gencode', {
+      labelcaption => "Genes (Basic set from GENCODE $gencode_version)",
+      display     => 'off',       
+      description => 'The GENCODE set is the gene set for human and mouse. GENCODE Basic is a subset of representative transcripts (splice variants).',
+      sortable    => 1,
+      colours     => $self->species_defs->colour('gene'), 
+      label_key  => '[biotype]',
+      logic_names => ['proj_ensembl',  'proj_ncrna', 'proj_havana_ig_gene', 'havana_ig_gene', 'ensembl_havana_ig_gene', 'proj_ensembl_havana_lincrna', 'proj_havana', 'ensembl', 'mt_genbank_import', 'ensembl_havana_lincrna', 'proj_ensembl_havana_ig_gene', 'ncrna', 'assembly_patch_ensembl', 'ensembl_havana_gene', 'ensembl_lincrna', 'proj_ensembl_havana_gene', 'havana'], 
+      renderers   =>  [
+        'off',                     'Off',
+        'gene_nolabel',            'No exon structure without labels',
+        'gene_label',              'No exon structure with labels',
+        'transcript_nolabel',      'Expanded without labels',
+        'transcript_label',        'Expanded with labels',
+        'collapsed_nolabel',       'Collapsed without labels',
+        'collapsed_label',         'Collapsed with labels',
+        'transcript_label_coding', 'Coding transcripts only (in coding genes)',
+      ],
+  }) if($gencode_version);
   
   if ($self->species_defs->ALTERNATIVE_ASSEMBLIES) {
     foreach my $alt_assembly (@{$self->species_defs->ALTERNATIVE_ASSEMBLIES}) {
@@ -127,10 +148,17 @@ sub init {
   # Add in additional tracks
   $self->load_tracks;
   $self->load_configured_das;
+  $self->load_configured_datahubs;
   $self->load_configured_bigwig;
   $self->load_configured_bigbed;
 #  $self->load_configured_bam;
-  
+
+  #switch on some variation tracks by default
+  $self->modify_configs(
+    [ 'variation_set_1kg_com','variation_set_ph_variants', 'sv_set_1kg_hq' ],
+    { display => 'compact' }
+  );
+
   # These tracks get added after the "auto-loaded tracks get addded
   if ($self->species_defs->ENSEMBL_MOD) {
     $self->add_track('information', 'mod', '', 'text', {
@@ -158,14 +186,14 @@ sub init {
   if ($compara_db) {
     my $mlss_adaptor    = $compara_db->get_adaptor('MethodLinkSpeciesSet');
     my %alignments      = $self->species_defs->multiX('COMPARA_DEFAULT_ALIGNMENTS');
-    while (my ($species_set, $method) = each (%alignments)) {
-      my $mlss = $mlss_adaptor->fetch_by_method_link_type_species_set_name($method, $species_set);
-      if ($mlss) {
-        $self->modify_configs(
-          [ 'alignment_compara_'.$mlss->dbID.'_constrained' ],
-          { display => 'compact' }
-        );
-      }
+    my $defaults = $self->hub->species_defs->multi_hash->{'DATABASE_COMPARA'}->{'COMPARA_DEFAULT_ALIGNMENT_IDS'};
+
+    foreach my $default (@$defaults) {
+      my ($mlss_id,$species,$method) = @$default;
+      $self->modify_configs(
+        [ 'alignment_compara_'.$mlss_id.'_constrained' ],
+        { display => 'compact' }
+      );
     }
   }
 

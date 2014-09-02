@@ -1,5 +1,5 @@
 Ensembl.Panel.ZMenu = Ensembl.Panel.ZMenu.extend({
-  populateRegion: function () {
+  _populateRegion: function () {
     var panel        = this;
     var min          = this.start;
     var max          = this.end;
@@ -13,10 +13,11 @@ Ensembl.Panel.ZMenu = Ensembl.Panel.ZMenu.extend({
       var view = end - start + 1 > Ensembl.maxRegionLength ? 'Overview' : 'View';
           url  = url.replace(/.+\?/, '?');
           menu = [ '<a href="' + panel.speciesPath + '/Location/' + view + url + '">Jump to location ' + view.toLowerCase() + '</a>' ];
-      
-      if (!window.location.pathname.match('/Chromosome')) {
-        menu.push('<a href="' + panel.speciesPath + '/Location/Chromosome' + url + '">Chromosome summary</a>');
-      }
+//// EG - ENSEMBL-3311 disable confusing link      
+      // if (!window.location.pathname.match('/Chromosome')) {
+      //   menu.push('<a href="' + panel.speciesPath + '/Location/Chromosome' + url + '">Chromosome summary</a>');
+      // }
+////      
     }
     
     // Multi species view
@@ -85,19 +86,16 @@ Ensembl.Panel.ZMenu = Ensembl.Panel.ZMenu.extend({
               cls = '';
             }
           }
-
-          menu = [
-            '<a class="' + cls + '" href="' + url + '">Jump to region (' + (end - start + 1) + ' bp)</a>',
-            '<a class="location_change" href="' + this.zoomURL(1) + '">Centre here</a>'
-          ];
-
+          
+          menu = [ '<a class="' + cls + '" href="' + url + '">Jump to region (' + (end - start + 1) + ' bp)</a>' ];
 //// VB - add web apollo link 
           if ( $('#webapollo-url').length ) {
             menu.push('<a class="center constant" href="%">View region in WebApollo</a>'.replace('%', 
               $('#webapollo-url').val().replace('%', this.chr).replace('%', start).replace('%', end) 
             ));
           }
-////          
+////   
+
         }
       }
     } else { // Point select
@@ -135,5 +133,15 @@ Ensembl.Panel.ZMenu = Ensembl.Panel.ZMenu.extend({
     }
     
     this.buildMenu(menu, caption);
+  },
+
+  // revert to original Ensembl behaviour 
+  populateNoAjax: function (force) {
+    var oldest = Ensembl.Panel.ZMenu.ancestor;
+    while (oldest.ancestor && typeof oldest.ancestor.prototype.populateNoAjax === 'function') {
+      oldest = oldest.ancestor;
+    }
+    return oldest.prototype.populateNoAjax.apply(this, arguments);
   }
+
 }, { template: Ensembl.Panel.ZMenu.template });

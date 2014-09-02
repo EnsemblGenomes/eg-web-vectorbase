@@ -29,7 +29,6 @@ sub availability {
       $availability->{history}  = !!$history_count;
       $availability->{'history_protein'} = !!$history_count;
 ##
-    
       $availability->{'core'}            = $self->get_db eq 'core';
       $availability->{'either'}          = 1;
       $availability->{'transcript'}      = 1;
