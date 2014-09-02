@@ -15,7 +15,7 @@ sub update_conf {
   }
 
   $SiteDefs::SITE_RELEASE_VERSION  = '1410';
-  $SiteDefs::SITE_RELEASE_DATE     = 'September 2014';
+  $SiteDefs::SITE_RELEASE_DATE     = 'October 2014';
   $SiteDefs::VECTORBASE_VERSION    = 'VB-2014-10';
 
   $SiteDefs::ENSEMBL_PORT       = 8080; 
