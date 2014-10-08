@@ -61,6 +61,7 @@ sub update_conf {
   $SiteDefs::__species_aliases{ 'Anopheles_melas' } = [qw(A.melas)];
   $SiteDefs::__species_aliases{ 'Anopheles_merus' } = [qw(A.merus)];
   $SiteDefs::__species_aliases{ 'Anopheles_sinensis' } = [qw(A.sinensis)];
+  $SiteDefs::__species_aliases{ 'Anopheles_sinensisC' } = [qw(A.sinensisC)];  
   $SiteDefs::__species_aliases{ 'Anopheles_coluzzii' } = [qw(A.coluzzii)];
 
   $SiteDefs::__species_aliases{ 'Glossina_morsitans' } = [qw(gm glossina tse_tse_fly G.morsitans)];
