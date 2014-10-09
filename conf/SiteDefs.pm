@@ -71,7 +71,7 @@ sub update_conf {
   $SiteDefs::__species_aliases{ 'Glossina_pallidipes' } = [qw(Glossina_pallidipes)];
 
   @SiteDefs::ENSEMBL_PERL_DIRS    = (
-    $SiteDefs::ENSEMBL_SERVERROOT.'/perl',
+    $SiteDefs::ENSEMBL_WEBROOT.'/perl',
     $SiteDefs::ENSEMBL_SERVERROOT.'/eg-plugins/common/perl',
     $SiteDefs::ENSEMBL_SERVERROOT.'/eg-plugins/vectorbase/perl',
   );
