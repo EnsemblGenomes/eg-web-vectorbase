@@ -18,6 +18,10 @@ limitations under the License.
 
 package EnsEMBL::Web::Apache::Handlers;
 
+### Uses mod_perl to replace the normal Apache server functionality,
+### initialising and cleaning up child processes
+### Handles URL routing, cookies, errors, mirror redirects 
+
 use strict;
 
 use Apache2::Const qw(:common :http :methods);
@@ -61,11 +65,15 @@ BEGIN {
 # Perl apache handlers in order they get executed                      #
 #======================================================================#
 
-# Child Init Handler
-# Sets up the web registry object - and initializes the timer
+sub child_init_hook {}
+
 sub childInitHandler {
+## Initiates an Apache child process, sets up the web registry object,
+## and initializes the timer
   my $r = shift;
-  
+ 
+  child_init_hook($r);
+ 
   my @X             = localtime;
   my $temp_hostname = hostname;
   my $temp_proc_id  = '' . reverse $$;
@@ -88,7 +96,8 @@ sub childInitHandler {
 
 
 sub redirect_to_nearest_mirror {
-  ## This does not do an actual HTTP redirect, but sets a cookie that tells the JavaScript to perform a client side redirect after specified time interval
+## Redirects requests based on IP address - only used if the ENSEMBL_MIRRORS site parameter is configured
+## This does not do an actual HTTP redirect, but sets a cookie that tells the JavaScript to perform a client side redirect after specified time interval
   my $r           = shift;
   my $server_name = $species_defs->ENSEMBL_SERVERNAME;
 
@@ -181,13 +190,11 @@ sub redirect_to_nearest_mirror {
   return DECLINED;
 }
 
+sub request_start_hook {}
 sub postReadRequestHandler {
   my $r = shift; # Get the connection handler
 
-  foreach my $h (@SiteDefs::REQUEST_START_HOOK) {
-    no strict;
-    $h->($r);
-  }
+  request_start_hook($r);
 
   # Nullify tags
   $ENV{'CACHE_TAGS'} = {};
@@ -202,6 +209,7 @@ sub postReadRequestHandler {
   my $width   = $cookies->{'ENSEMBL_WIDTH'} && $cookies->{'ENSEMBL_WIDTH'}->value ? $cookies->{'ENSEMBL_WIDTH'}->value : 0;  
   my $window_width = $cookies->{'WINDOW_WIDTH'} && $cookies->{'WINDOW_WIDTH'}->value ? $cookies->{'WINDOW_WIDTH'}->value : 0;
   
+#warn ">>$window_width";
   $r->subprocess_env->{'WINDOW_WIDTH'}          = $window_width; # use for mobile website to determine device windows size
   $r->subprocess_env->{'ENSEMBL_IMAGE_WIDTH'}   = $width || $SiteDefs::ENSEMBL_IMAGE_WIDTH || 800;
   $r->subprocess_env->{'ENSEMBL_DYNAMIC_WIDTH'} = $cookies->{'DYNAMIC_WIDTH'} && $cookies->{'DYNAMIC_WIDTH'}->value ? 1 : $width ? 0 : 1;
@@ -243,11 +251,13 @@ sub handler {
   
   $ENSEMBL_WEB_REGISTRY->timer->set_name('REQUEST ' . $r->uri);
 
+## VB
   if ($r->headers_in->{'User-Agent'} =~ /Spider|Googlebot|Sogou|Baiduspider|Ahrefs|Yahoo|Bing|Soso|YYSpider/i) {
     # disallow pesky search bots
     $ENSEMBL_WEB_REGISTRY->timer_push('Handler "DECLINED"', undef, 'Apache');
     return DECLINED;
   }
+##
   
   my $u           = $r->parsed_uri;
   my $file        = $u->path;
@@ -277,7 +287,7 @@ sub handler {
   }  
 
   ## Simple redirect to VEP
-  
+
   if ($SiteDefs::ENSEMBL_SITETYPE eq 'Pre' && $file =~ /\/vep/i) { ## Pre has no VEP, so redirect to tools page
     $r->uri('/info/docs/tools/index.html');
     $redirect = 1;
@@ -289,7 +299,7 @@ sub handler {
     $redirect = 1;
   }
 
-  ## Redirect moved documentation 
+  ## Redirect moved documentation
   if ($file =~ /\/info\/docs\/(variation|funcgen|compara|genebuild|microarray)/) {
     $file =~ s/docs/genome/;
     $r->uri($file);
@@ -322,7 +332,7 @@ sub handler {
   ## Check for stable id URL (/id/ENSG000000nnnnnn) 
   ## and malformed Gene/Summary URLs from external users
   if (($raw_path[0] && $raw_path[0] =~ /^id$/i && $raw_path[1]) || ($raw_path[0] eq 'Gene' && $querystring =~ /g=/ )) {
-    my ($stable_id, $object_type, $db_type, $uri);
+    my ($stable_id, $object_type, $db_type, $retired, $uri);
     
     if ($raw_path[0] =~ /^id$/i) {
       $stable_id = $raw_path[1];
@@ -350,11 +360,11 @@ sub handler {
       );
     }
 
-    ($species, $object_type, $db_type) = Bio::EnsEMBL::Registry->get_species_and_object_type($stable_id);
+    ($species, $object_type, $db_type, $retired) = Bio::EnsEMBL::Registry->get_species_and_object_type($stable_id, undef, undef, undef, undef, 1);
     
     if (!$species || !$object_type) {
       ## Maybe that wasn't versioning after all!
-      ($species, $object_type, $db_type) = Bio::EnsEMBL::Registry->get_species_and_object_type($unstripped_stable_id);
+      ($species, $object_type, $db_type, $retired) = Bio::EnsEMBL::Registry->get_species_and_object_type($unstripped_stable_id, undef, undef, undef, undef, 1);
       $stable_id = $unstripped_stable_id if($species && $object_type);
     }
     
@@ -362,37 +372,29 @@ sub handler {
       $uri = $species ? "/$species/" : '/Multi/';
       
       if ($object_type eq 'Gene') {
-        $uri .= "Gene/Summary?g=$stable_id";
+        $uri .= sprintf 'Gene/%s?g=%s', $retired ? 'Idhistory' : 'Summary', $stable_id;
       } elsif ($object_type eq 'Transcript') {
-        $uri .= "Transcript/Summary?t=$stable_id";
+        $uri .= sprintf 'Transcript/%s?t=%s',$retired ? 'Idhistory' : 'Summary', $stable_id;
       } elsif ($object_type eq 'Translation') {
-        $uri .= "Transcript/ProteinSummary?t=$stable_id";
+        $uri .= sprintf 'Transcript/%s?t=%s', $retired ? 'Idhistory/Protein' : 'ProteinSummary', $stable_id;
       } elsif ($object_type eq 'GeneTree') {
-        $uri = "/Multi/GeneTree/Image?gt=$stable_id";
+        $uri = "/Multi/GeneTree/Image?gt=$stable_id"; # no history page!
       } elsif ($object_type eq 'Family') {
-        $uri = "/Multi/Family/Details?fm=$stable_id";
+        $uri = "/Multi/Family/Details?fm=$stable_id"; # no history page!
       } else {
         $uri .= "psychic?q=$stable_id";
       }
-      
-      $r->uri($uri);
-      $r->headers_out->add('Location' => $r->uri);
-      $r->child_terminate;
-      
-      $ENSEMBL_WEB_REGISTRY->timer_push('Handler "REDIRECT"', undef, 'Apache');
-    
-      return HTTP_MOVED_PERMANENTLY;
     }
-    
-    ## In case the given ID is retired, which means no species 
-    ## can be returned by the API call above
-    $r->uri('/');
+
+    $uri ||= "/Multi/psychic?q=$stable_id";
+
+    $r->uri($uri);
     $r->headers_out->add('Location' => $r->uri);
     $r->child_terminate;
-    
+
     $ENSEMBL_WEB_REGISTRY->timer_push('Handler "REDIRECT"', undef, 'Apache');
-    
-    return NOT_FOUND;
+
+    return HTTP_MOVED_PERMANENTLY;
   }
 
   my %lookup = map { $_ => 1 } $species_defs->valid_species;
@@ -490,7 +492,7 @@ sub handler {
   # Permanent redirect for old species home pages:
   # e.g. /Homo_sapiens or Homo_sapiens/index.html -> /Homo_sapiens/Info/Index
   if ($species && $species_name && (!$script || $script eq 'index.html')) {
-    $r->uri($species_name eq 'common' ? 'index.html' : "/$species_name/Info/Index");
+    $r->uri($species_name eq 'common' ? 'index.html' : $species_defs->ENSEMBL_SITETYPE eq 'Ensembl mobile' ? "/$species_name/Info/Annotation#assembly" : "/$species_name/Info/Index"); #additional if for mobile site different species home page
     $r->headers_out->add('Location' => $r->uri);
     $r->child_terminate;
     $ENSEMBL_WEB_REGISTRY->timer_push('Handler "REDIRECT"', undef, 'Apache');
@@ -567,13 +569,11 @@ sub logHandler {
   return DECLINED;
 }
 
+sub request_end_hook {}
 sub cleanupHandler {
   my $r = shift;  # Get the connection handler
   
-  foreach my $h (@SiteDefs::REQUEST_END_HOOK) {
-    no strict;
-    $h->($r);
-  }
+  request_end_hook($r);
   return if $r->subprocess_env->{'ENSEMBL_ENDTIME'};
   
   my $end_time   = time;
@@ -793,13 +793,6 @@ sub _load_command_linux {
   my $VAL = `ps --no-heading -C $command  | wc -l`;
   
   return $VAL + 0;
-}
-
-sub _referrer_is_mirror {
-## Mirror hash is now multi-dimensional, so we have to recurse into it
-    my ( $ensembl_mirrors, $referrer ) = @_;
-    map { ref $_ eq 'HASH' ? _referrer_is_mirror( $_, $referrer ) : $referrer eq $_ ? return 'true' : undef }
-      values %$ensembl_mirrors;
 }
 
 1;
