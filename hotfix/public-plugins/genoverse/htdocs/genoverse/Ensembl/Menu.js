@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 Ensembl.Panel.GenoverseMenu = Ensembl.Panel.ZMenu.extend({
   constructor: function (id, data) {
     this.id          = id;
@@ -48,7 +49,7 @@ Ensembl.Panel.GenoverseMenu = Ensembl.Panel.ZMenu.extend({
     this[this.drag ? 'populateRegion' : this.href ? 'populateAjax' : 'populate']();
     
     if (this.drag) {
-      $('a', this.el).on('click', function () {
+      $('a', this.el).on('click', function (e) {
         var cls = this.className.replace(' constant', '');
         
         if (cls === 'jumpHere') {
@@ -57,11 +58,12 @@ Ensembl.Panel.GenoverseMenu = Ensembl.Panel.ZMenu.extend({
           
           browser.moveTo(position.start, position.end);
           
-          //if (browser.prev.start !== browser.start || browser.prev.end !== browser.end) {
-            browser.updateURL(position);
-          //}
+          Ensembl.EventManager.trigger('highlightImage', browser.panel.imageNumber + 1, 0, position.start, position.end);
+          
+          browser.updateURL(position);
           
           browser.cancelSelect();
+          browser.moveSelector(e);
         } else {
           $('.selector_controls .' + cls, '#' + panel.imageId).trigger('click');
         }
