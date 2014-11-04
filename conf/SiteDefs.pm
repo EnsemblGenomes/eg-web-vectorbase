@@ -14,9 +14,9 @@ sub update_conf {
     $SiteDefs::VECTORBASE_BASE_URL  = 'http://www.vectorbase.org';
   }
 
-  $SiteDefs::SITE_RELEASE_VERSION  = '1410';
-  $SiteDefs::SITE_RELEASE_DATE     = 'October 2014';
-  $SiteDefs::VECTORBASE_VERSION    = 'VB-2014-10';
+  $SiteDefs::SITE_RELEASE_VERSION  = '1412';
+  $SiteDefs::SITE_RELEASE_DATE     = 'December 2014';
+  $SiteDefs::VECTORBASE_VERSION    = 'VB-2014-12';
 
   $SiteDefs::ENSEMBL_PORT       = 8080; 
   $SiteDefs::APACHE_BIN         = '/usr/sbin/httpd';
