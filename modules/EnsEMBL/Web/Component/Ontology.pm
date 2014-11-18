@@ -75,7 +75,7 @@ sub ontology_chart {
 ## VB - VB-3155     
     my $bds = $species_defs->get_config($self->object->species, 'BIOMART_DATASET');
     if ($bds && $bm_filter &&  $species_defs->GENOMIC_UNIT && $species_defs->GENOMIC_UNIT !~ /bacteria|parasite/) {
-      my $vschema      = sprintf qq{vb_mart_%s}, '26'; #####$SiteDefs::SITE_RELEASE_VERSION;
+      my $vschema      = sprintf qq{vb_mart_%s}, $SiteDefs::SITE_RELEASE_VERSION;
     	my $attr_prefix  = "${bds}_gene";
       my $biomart_link = sprintf qq{/biomart/martview?VIRTUALSCHEMANAME=%s&ATTRIBUTES=%s.default.feature_page.ensembl_gene_id|%s.default.feature_page.ensembl_transcript_id&FILTERS=%s.default.filters.%s.\\"###ID###\\"&VISIBLEPANEL=resultspanel},
     	                           $vschema, $attr_prefix, $attr_prefix, $attr_prefix, $bm_filter;

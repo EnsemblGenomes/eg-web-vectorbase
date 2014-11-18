@@ -52,7 +52,6 @@ use EnsEMBL::Web::Apache::SpeciesHandler;
 our $species_defs = EnsEMBL::Web::SpeciesDefs->new;
 our $MEMD         = EnsEMBL::Web::Cache->new;
 
-our $BLAST_LAST_RUN;
 our $LOAD_COMMAND;
 
 BEGIN {
@@ -288,7 +287,7 @@ sub handler {
 
   ## Simple redirect to VEP
 
-  if ($SiteDefs::ENSEMBL_SITETYPE eq 'Pre' && $file =~ /\/vep/i) { ## Pre has no VEP, so redirect to tools page
+  if ($SiteDefs::ENSEMBL_SUBTYPE eq 'Pre' && $file =~ /\/vep/i) { ## Pre has no VEP, so redirect to tools page
     $r->uri('/info/docs/tools/index.html');
     $redirect = 1;
   } elsif ($file =~ /\/info\/docs\/variation\/vep\/vep_script.html/) {
@@ -492,7 +491,7 @@ sub handler {
   # Permanent redirect for old species home pages:
   # e.g. /Homo_sapiens or Homo_sapiens/index.html -> /Homo_sapiens/Info/Index
   if ($species && $species_name && (!$script || $script eq 'index.html')) {
-    $r->uri($species_name eq 'common' ? 'index.html' : $species_defs->ENSEMBL_SITETYPE eq 'Ensembl mobile' ? "/$species_name/Info/Annotation#assembly" : "/$species_name/Info/Index"); #additional if for mobile site different species home page
+    $r->uri($species_name eq 'common' ? 'index.html' : $species_defs->ENSEMBL_SUBTYPE =~ /mobile/i ? "/$species_name/Info/Annotation#assembly" : "/$species_name/Info/Index"); #additional if for mobile site different species home page
     $r->headers_out->add('Location' => $r->uri);
     $r->child_terminate;
     $ENSEMBL_WEB_REGISTRY->timer_push('Handler "REDIRECT"', undef, 'Apache');
@@ -634,91 +633,6 @@ sub cleanupHandler_script {
   warn $ENSEMBL_WEB_REGISTRY->timer->render if $SiteDefs::ENSEMBL_DEBUG_FLAGS & $SiteDefs::ENSEMBL_DEBUG_PERL_PROFILER;
   
   push_script_line($r, 'ENDSCR', sprintf '%10.3f', time - $r->subprocess_env->{'LOG_TIME'}) if $SiteDefs::ENSEMBL_DEBUG_FLAGS & $SiteDefs::ENSEMBL_DEBUG_HANDLER_ERRORS;
-  
-  cleanupHandler_blast($r) if $SiteDefs::ENSEMBL_BLASTSCRIPT;
-}
-
-sub cleanupHandler_blast {
-  my $r = shift;
-  
-  my $directory = $SiteDefs::ENSEMBL_TMP_DIR_BLAST . '/pending';
-  my $FLAG  = 0;
-  my $count = 0;
-  my $ticket;
-  my $_process_blast_called_at = time;
-
-  $ticket = $ENV{'ticket'};
-  
-  # Lets work out when to run this!
-  my $run_blast;
-  my $loads = _get_loads();
-  my $seconds_since_last_run = (time - $BLAST_LAST_RUN);
-
-  if ($ticket) {
-    if (_run_blast_ticket($loads, $seconds_since_last_run)) {
-      $FLAG = 1;
-      $BLAST_LAST_RUN = time;
-    }
-  } else {
-    # Current run blasts
-    if (_run_blast_no_ticket($loads, $seconds_since_last_run)) {
-      $BLAST_LAST_RUN = time;
-      $FLAG = 1;
-    }
-  }
-  
-  while ($FLAG) {
-    $count++;
-    $FLAG = 0;
-    
-    if (opendir(DH, $directory)) {
-      while (my $FN = readdir(DH)) {
-        my $file = "$directory/$FN";
-        
-        next unless -f $file; # File
-        next if -z $file;     # Contains something
-        
-        my @STAT = stat $file;
-        
-        next if $STAT[8]+5 > time; # Was last modified more than 5 seconds ago
-        next if $ticket && $file !~ /$ticket/;
-        
-        # We have a ticket
-        open  FH, $file;
-        
-        flock FH, LOCK_EX;
-        my $blast_file = <FH>;
-        chomp $blast_file;
-        
-        $blast_file = $1 if $blast_file =~ /^([\/\w\.-]+)/;
-        
-        (my $FILE2 = $file) =~ s/pending/parsing/;
-        
-        rename $file, $FILE2;
-        
-        (my $FILE3 = $file) =~ s/pending/sent/;
-        
-        unlink $FILE3;
-        
-        flock FH, LOCK_UN;
-        
-        my $COMMAND = "$SiteDefs::ENSEMBL_BLASTSCRIPT $blast_file $FILE2";
-        
-        warn "BLAST: $COMMAND";
-        
-        `$COMMAND`; # Now we parse the blast file
-        
-        if ($ticket && ($_process_blast_called_at + 30 > time)) {
-          $loads = _get_loads();
-          $FLAG = 1 if $count < 15;
-        }
-        
-        last;
-      }
-      
-      closedir(DH);
-    }
-  }
 }
 
 sub childExitHandler {
@@ -754,27 +668,6 @@ sub push_script_line {
   );
   
   $r->subprocess_env->{'LOG_TIME'} = time;
-}
-
-#======================================================================#
-# BLAST Support functionality - TODO: update before implementing!      #
-#======================================================================#
-
-sub _run_blast_no_ticket {
-  my ($loads, $seconds_since_last_run) = @_;
-  return $loads->{'blast'} < 3 && rand $loads->{'httpd'} < 10 && rand $seconds_since_last_run > 1;
-}
-
-sub _run_blast_ticket {
-  my ($loads, $seconds_since_last_run) = @_;
-  return $loads->{'blast'} < 8;
-}
-
-sub _get_loads {
-  return {
-    blast => &$LOAD_COMMAND('parse_blast.pl'),
-    httpd => &$LOAD_COMMAND('httpd')
-  };
 }
 
 sub  _load_command_null {
