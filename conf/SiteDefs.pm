@@ -86,7 +86,6 @@ sub update_conf {
   
   $SiteDefs::VECTORBASE_SEARCH_SITE        = "https://www.vectorbase.org";
   $SiteDefs::VECTORBASE_EXPRESSION_BROWSER = 'https://www.vectorbase.org/expression-browser';
-  $SiteDefs::VECTORBASE_FTP_PREFIX         = 'ftpi';
   
   $SiteDefs::ENSEMBL_LOGINS = 0;
   $SiteDefs::OBJECT_TO_SCRIPT->{'Info'} = 'AltPage';
