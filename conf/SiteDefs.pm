@@ -24,8 +24,8 @@ sub update_conf {
   $SiteDefs::SAMTOOLS_DIR       = '/nfs/public/rw/ensembl/samtools';
   $SiteDefs::MWIGGLE_DIR        = '/nfs/public/rw/ensembl/tools/mwiggle/';
 
-  $SiteDefs::ENSEMBL_PRIMARY_SPECIES    = 'Glossina_morsitans'; 
-  $SiteDefs::ENSEMBL_SECONDARY_SPECIES  = 'Phlebotomus_papatasi';
+  $SiteDefs::ENSEMBL_PRIMARY_SPECIES = 'Anopheles_gambiae';
+  $SiteDefs::ENSEMBL_SECONDARY_SPECIES ='Aedes_aegypti';
 
   map {delete($SiteDefs::__species_aliases{$_}) } keys %SiteDefs::__species_aliases;
   
