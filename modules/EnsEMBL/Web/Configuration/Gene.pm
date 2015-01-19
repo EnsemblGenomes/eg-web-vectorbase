@@ -9,6 +9,10 @@ sub modify_tree {
   my $species_defs = $hub->species_defs;
   my $object = $self->object;
 
+## VB
+  $self->delete_node($_) for (qw(Alleles SecondaryStructure Family));
+##
+
   my $summary = $self->get_node('Summary');
 
 #  my $splice = $self->get_node('Splice');
