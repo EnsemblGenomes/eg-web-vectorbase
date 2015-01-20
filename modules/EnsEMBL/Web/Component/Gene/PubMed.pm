@@ -17,7 +17,7 @@ sub content {
 
   if ($error) {
   
-    $self->_info_panel('error', 'Failed to fetch articles from Europe PubMed Central', $error);
+    $html .= $self->_info_panel('error', 'Failed to fetch articles from Europe PubMed Central', $error);
   
   } else {
 
@@ -48,10 +48,7 @@ sub content {
       });
     }
 
-    $html .= $table->render;
-
-    $html .= "<pre>" . Data::Dumper::Dumper($articles) . "</pre>";
-  
+    $html .= $table->render;  
   }
 
   return $html;
@@ -105,8 +102,6 @@ sub _user_agent {
   $ua->env_proxy;
   return $ua;
 }
-
-
 
 1;
 
