@@ -232,8 +232,8 @@ sub modify_tree {
     { 'availability' => 'gene has_pathways', 'concise' => 'Pathways' }
   ));
 
-  $compara_menu->before($self->create_node("das/S4_PUBMED", 'PubMed ([[counts::pubmed]])',
-    ['S4DASPUBMED', "EnsEMBL::Web::Component::Gene::S4DASPUBMED"], {
+  $compara_menu->before($self->create_node("PubMed", 'PubMed ([[counts::pubmed]])',
+    ['PubMed', "EnsEMBL::Web::Component::Gene::PubMed"], {
       availability => 'pubmed', 
       concise      => 'PubMed', 
     }
