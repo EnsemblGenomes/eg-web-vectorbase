@@ -74,13 +74,12 @@ sub modify_tree {
 				]);
 
 ## VB
-  my $expression_menu = $self->create_submenu('GeneExpression', 'Gene Expression');
-  $expression_menu->append($self->create_node('GeneExpressionReporters', 'Reporters ([[counts::expression]])',
+  my $expression_node = $self->create_node('GeneExpressionReporters', 'Expression report',
     [], { 'availability' => 'gene', 'url' => $SiteDefs::VECTORBASE_EXPRESSION_BROWSER . "/gene/" . $self->object->param('g'), 'raw' => 1 }
-  ));
+  );
 
   my $regulation_node = $self->get_node('Regulation');
-  $regulation_node->after($expression_menu);
+  $regulation_node->after($expression_node);
 ## /VB
 
   # Graphical gene alignment:
