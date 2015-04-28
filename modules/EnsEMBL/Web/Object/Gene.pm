@@ -41,7 +41,7 @@ sub availability {
       $availability->{'family'}               = !!$counts->{families};
       $availability->{'not_rnaseq'}           = $self->get_db eq 'rnaseq' ? 0 : 1;
 ## VB      
-      $availability->{"has_$_"}               = $counts->{$_} for qw(pathways go transcripts alignments paralogs orthologs similarity_matches operons structural_variation pairwise_alignments);
+      $availability->{"has_$_"}               = $counts->{$_} for qw(expression pathways go transcripts alignments paralogs orthologs similarity_matches operons structural_variation pairwise_alignments);
 ##
       $availability->{'multiple_transcripts'} = $counts->{'transcripts'} > 1;
       $availability->{'not_patch'}            = $obj->stable_id =~ /^ASMPATCH/ ? 0 : 1; ## TODO - hack - may need rewriting for subsequent releases

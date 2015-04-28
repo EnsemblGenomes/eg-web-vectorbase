@@ -75,7 +75,7 @@ sub modify_tree {
 
 ## VB
   my $expression_node = $self->create_node('GeneExpressionReporters', 'Expression report',
-    [], { 'availability' => 'gene', 'url' => $SiteDefs::VECTORBASE_EXPRESSION_BROWSER . "/gene/" . $self->object->param('g'), 'raw' => 1 }
+    [], { 'availability' => 'gene has_expression', 'url' => $SiteDefs::VECTORBASE_EXPRESSION_BROWSER . "/gene/" . $self->object->param('g'), 'raw' => 1 }
   );
 
   my $regulation_node = $self->get_node('Regulation');
