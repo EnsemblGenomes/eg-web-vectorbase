@@ -14,12 +14,16 @@ sub content {
 
   return sprintf '<h3>No individual genotypes for this SNP%s %s</h3>', $selected_pop ? ' in population' : '', $pop_obj->name unless %ind_data;
 
-  my (%rows, %all_pops, %pop_names);
+  my (%rows, %pop_names);
   my $flag_children = 0;
   my $allele_string = $self->object->alleles;
-
   my $al_colours = $self->object->get_allele_genotype_colours;
-  
+
+  my %group_name;
+  my %priority_data;
+  my %other_pop_data;
+  my %other_ind_data;
+
 ## VB
   my @names = map {$_->{'Name'}} values %ind_data;
   
@@ -37,7 +41,7 @@ sub content {
 
   my %sample_name = map { $_->[0] => $_->[1] } @{$sample_st->fetchall_arrayref};
 ##
-  
+
   foreach my $ind_id (sort { $ind_data{$a}{'Name'} cmp $ind_data{$b}{'Name'} } keys %ind_data) {
     my $data     = $ind_data{$ind_id};
     my $genotype = $data->{'Genotypes'};
@@ -57,11 +61,20 @@ sub content {
       
       if ($pop->{'Size'} == 1) {
         $other_ind = 1;
+        $other_ind_data{$pop_id} = 1;
       }
       else {
         $populations{$pop_id} = 1;
-        $all_pops{$pop_id}    = $self->pop_url($pop->{'Name'}, $pop->{'Link'});
-        $pop_names{$pop_id}   = $pop->{'Name'};
+        $pop_names{$pop_id} = $pop->{'Name'};
+
+        my $priority_level = $pop->{'Priority'};
+        if ($priority_level) {
+          $group_name{$priority_level} = $pop->{'Group'} unless defined $group_name{$priority_level};
+          $priority_data{$priority_level}{$pop_id} = {'name' => $pop->{'Name'}, 'link' => $pop->{'Link'}};
+        }
+        else {
+          $other_pop_data{$pop_id} = {'name' => $pop->{'Name'}, 'link' => $pop->{'Link'}};
+        }
       }
     }
     
@@ -73,7 +86,8 @@ sub content {
     my $row = {
 ## VB      
       Individual  => sprintf("<small><a href=\"/popbio/sample/?id=%s\">$data->{'Name'}</a> (%s)</small>", $sample_name{$data->{'Name'}}, substr($data->{'Gender'}, 0, 1)),
-##
+#     Individual  => sprintf("<small id=\"$data->{'Name'}\">$data->{'Name'} (%s)</small>", substr($data->{'Gender'}, 0, 1)),
+##      
       Genotype    => "<small>$genotype</small>",
       Population  => "<small>".join(", ", sort keys %{{map {$_->{Name} => undef} @{$data->{Population}}}})."</small>",
       Father      => "<small>".($father eq '-' ? $father : "<a href=\"#$father\">$father</a>")."</small>",
@@ -105,16 +119,20 @@ sub content {
   
   if ($selected_pop || scalar keys %rows == 1) {
     $selected_pop ||= (keys %rows)[0]; # there is only one entry in %rows
-      
+
+    my $pop_name = $pop_names{$selected_pop};
+    my $project_url  = $self->pop_url($pop_name);
+    my $pop_url = sprintf('<div style="clear:both"></div><p><a href="%s" rel="external">More information about the <b>%s</b> population &rarr;</a></p>', $project_url, $pop_name); 
+
     return $self->toggleable_table(
       "Genotypes for $pop_names{$selected_pop}", $selected_pop, 
       $self->new_table($columns, $rows{$selected_pop}, { data_table => 1, sorting => [ 'Individual asc' ] }),
       1,
-      qq{<span style="float:right"><a href="#$self->{'id'}_top">[back to top]</a></span><br />}
-    );
+      qq{<span style="float:right"><a href="#}.$self->{'id'}.qq{_top">[back to top]</a></span><br />}
+    ).$pop_url;
   }
   
-  return $self->summary_tables(\%all_pops, \%rows, $columns);
+  return $self->summary_tables(\%rows, \%priority_data, \%other_pop_data, \%other_ind_data, \%group_name, $columns);
 }
 
 1;
