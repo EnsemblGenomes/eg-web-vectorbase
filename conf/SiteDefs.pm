@@ -69,6 +69,7 @@ sub update_conf {
   $SiteDefs::__species_aliases{ 'Glossina_brevipalpis' } = [qw(Glossina_brevipalpis)];
   $SiteDefs::__species_aliases{ 'Glossina_fuscipes' } = [qw(Glossina_fuscipes)];
   $SiteDefs::__species_aliases{ 'Glossina_pallidipes' } = [qw(Glossina_pallidipes)];
+  $SiteDefs::__species_aliases{ 'Glossina_palpalis' } = [qw(Glossina_palpalis)];
 
   @SiteDefs::ENSEMBL_PERL_DIRS    = (
     $SiteDefs::ENSEMBL_WEBROOT.'/perl',
