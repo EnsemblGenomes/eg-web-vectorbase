@@ -82,20 +82,13 @@ sub modify_tree {
   $regulation_node->after($expression_node);
 ## /VB
 
-  # Graphical gene alignment:
-  my $compara_align = $self->get_node('Compara_Alignments');
-  $compara_align->set('caption', 'Genomic alignments (text)');
-  my $compara_align_image = $self->create_node('Compara_Alignments/Image', 'Genomic alignments (image)',
+  $genetree->before($self->create_node('Compara_Alignments', 'Genomic alignments',
     [qw(
-      selector EnsEMBL::Web::Component::Compara_AlignSliceSelector
-      bottom   EnsEMBL::Web::Component::Gene::Compara_AlignSliceBottom
+      selector   EnsEMBL::Web::Component::Compara_AlignSliceSelector
+      alignments EnsEMBL::Web::Component::Gene::Compara_Alignments
     )],
     { 'availability' => 'gene database:compara core has_alignments' }
-  );
-  $compara_menu->append($compara_align_image);
-  $compara_align->before($compara_align_image);
-  #
-
+  ));
 
   my $var_menu     = $self->get_node('Variation');
 
