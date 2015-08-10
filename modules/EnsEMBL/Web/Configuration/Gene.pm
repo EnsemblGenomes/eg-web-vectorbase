@@ -219,7 +219,7 @@ sub modify_tree {
   # S4 DAS
 ## VB
 
-  $compara_menu->before($self->create_node('Pathways', 'Pathways ([[counts::pathways]])',
+  $compara_menu->before($self->create_node('Pathways', 'Pathways',
     ['pathways', 'EnsEMBL::Web::Component::Gene::Pathways'],
     { 'availability' => 'gene has_pathways', 'concise' => 'Pathways' }
   ));
