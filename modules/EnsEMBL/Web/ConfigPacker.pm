@@ -83,7 +83,7 @@ sub _summarise_variation_db {
 
 ## VB - add description lookup
   
-  my $name_desc = $dbh->selectall_arrayref( "select name, description from individual where display not like 'UNDISPLAYABLE'" );
+  my $name_desc = $dbh->selectall_arrayref( "select name, description from individual" );
   $self->db_details($db_name)->{'DISPLAY_STRAIN_DESCRIPTION'}->{$_->[0]} = $_->[1] for @$name_desc;
 
 ##
