@@ -40,6 +40,8 @@ sub update_conf {
   $SiteDefs::__species_aliases{ 'Drosophila_melanogaster' } = [qw(dm)];
   $SiteDefs::__species_aliases{ 'Biomphalaria_glabrata' } = [qw(bg)];
   $SiteDefs::__species_aliases{ 'Musca_domestica' } = [qw(md)];
+  $SiteDefs::__species_aliases{ 'Stomoxys_calcitrans' } = [qw(Stomoxys_calcitrans)];
+  
 
   $SiteDefs::__species_aliases{ 'Anopheles_gambiae' } = [qw(ag agam mosquito mos anopheles)];
   $SiteDefs::__species_aliases{ 'Anopheles_gambiaeS' } = [qw(ag agam mosquito mos anopheles)];
