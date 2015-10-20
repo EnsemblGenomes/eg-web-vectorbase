@@ -24,69 +24,69 @@ use EnsEMBL::Web::Constants;
 use EnsEMBL::Web::Tools::OntologyVisualisation;
 
 sub ontology_chart {
-    my ($self, $chart, $oname, $root) = @_;
+  my ($self, $chart, $oname, $root) = @_;
 
-    my $hub                         = $self->hub;
-    my $object                      = $self->object;
-    my $species_defs                = $hub->species_defs;  
-    my $oid                         = $hub->param('oid');
-    my $go                          = $hub->param('go');
-    
-    my %clusters = $species_defs->multiX('ONTOLOGIES');
+  my $hub          = $self->hub;
+  my $object       = $self->object;
+  my $species_defs = $hub->species_defs;
+  my $oid          = $hub->param('oid');
+  my $go           = $hub->param('go');
 
-    my $ontovis = new EnsEMBL::Web::Tools::OntologyVisualisation();
+  my %clusters = $species_defs->multiX('ONTOLOGIES');
 
-    my $oMap = EnsEMBL::Web::Constants::ONTOLOGY_SETTINGS ;
-    my @hss =  $oMap->{$oname} ? @{$oMap->{$oname}->{subsets} || []} : ();
+  my $ontology_term_adaptor = $hub->get_databases('go')->{'go'}->get_GOTermAdaptor;
 
-    $ontovis->highlighted_subsets(@hss);
-  
-    my $subsets = $species_defs->get_config($object->species, 'ONTOLOGY_SUBSETS');
-    my $hss = {};
-    foreach my $ss (@{$subsets || []}) {
-    	$hss->{$ss}->{color} =  $species_defs->colour('goimage', $ss) || 'grey';
-    	$hss->{$ss}->{label} =  $species_defs->colour('goimage', $ss, 'text') || $ss;
+  my $ontovis = EnsEMBL::Web::Document::Image::Ontology->new($hub, undef, {'_ontology_term_adaptor' => $ontology_term_adaptor},);
+
+  my $oMap = EnsEMBL::Web::Constants::ONTOLOGY_SETTINGS;
+  my @hss = $oMap->{$oname} ? @{$oMap->{$oname}->{subsets} || []} : ();
+
+  $ontovis->highlighted_subsets(@hss);
+
+  my $subsets = $species_defs->get_config($object->species, 'ONTOLOGY_SUBSETS');
+  my $hss = {};
+  foreach my $ss (@{$subsets || []}) {
+    $hss->{$ss}->{color} = $species_defs->colour('goimage', $ss) || 'grey';
+    $hss->{$ss}->{label} = $species_defs->colour('goimage', $ss, 'text') || $ss;
+  }
+
+  $ontovis->highlight_subsets($hss);
+
+  my $cmap = {
+    'background'    => $species_defs->colour('goimage', 'image_background'),
+    'border'        => $species_defs->colour('goimage', 'node_all_border'),
+    'selected_node' => $species_defs->colour('goimage', 'node_select_background'),
+  };
+
+  foreach my $rel (@{$clusters{$oid}->{relations} || []}) {
+    $cmap->{relations}->{$rel} = $species_defs->colour('goimage', $rel) || 'black';
+  }
+
+  $ontovis->colours($cmap);
+
+  my $extlinks = $oMap->{$oname} ? $oMap->{$oname}->{extlinks} : {};
+
+  my $bm_filter = $oMap->{$oname} ? $oMap->{$oname}->{biomart_filter} : '';
+  if ($bm_filter && $species_defs->GENOMIC_UNIT && $species_defs->GENOMIC_UNIT !~ /bacteria|parasite/) {
+## VB - VB-3155      
+    my $vschema = sprintf qq{%s_mart_%s}, 'vb', $SiteDefs::SITE_RELEASE_VERSION;
+##    
+    my (@species) = split /_/, $object->species;
+    my $attr_prefix = lc(substr($species[0], 0, 1) . $species[1] . "_eg_gene");
+
+    if (my $bds = $species_defs->get_config($self->object->species, 'BIOMART_DATASET')) {
+      $attr_prefix = "${bds}_gene";
     }
 
-    $ontovis->highlight_subsets($hss);
+    my $biomart_link = sprintf qq{/biomart/martview?VIRTUALSCHEMANAME=%s&ATTRIBUTES=%s.default.feature_page.ensembl_gene_id|%s.default.feature_page.ensembl_transcript_id&FILTERS=%s.default.filters.%s.\\"###ID###\\"&VISIBLEPANEL=resultspanel}, $vschema, $attr_prefix, $attr_prefix, $attr_prefix, $bm_filter;
+    $extlinks->{'Search BioMart'} = $biomart_link;
+    $extlinks->{'Search BioMart'} = $biomart_link;
+  }
 
-    my $cmap = {
-    	'background' => $species_defs->colour('goimage', 'image_background'),
-    	'border' => $species_defs->colour('goimage', 'node_all_border'),
-    	'selected_node' => $species_defs->colour('goimage', 'node_select_background'),
-    };
+  $ontovis->node_links($extlinks);
 
-    my $add_relations = {};
-    foreach my $rel ( @{$clusters{$oid}->{relations} || []} ) {
-    	if ($rel =~ /is_a|part_of/ || $self->hub->param("opt_$rel") eq 'on') {
-    	  $cmap->{relations}->{$rel} = $species_defs->colour('goimage', $rel) || 'black';
-    	}
-
-    	if ($hub->param("opt_$rel") eq 'on') {
-    	  $add_relations->{$rel} = 1;
-    	}
-    }
-  
-    $ontovis->colours($cmap);
-
-    my $extlinks = $oMap->{$oname} ? $oMap->{$oname}->{extlinks}  : {};
-
-    my $bm_filter = $oMap->{$oname} ? $oMap->{$oname}->{biomart_filter}  : '';
-## VB - VB-3155     
-    my $bds = $species_defs->get_config($self->object->species, 'BIOMART_DATASET');
-    if ($bds && $bm_filter &&  $species_defs->GENOMIC_UNIT && $species_defs->GENOMIC_UNIT !~ /bacteria|parasite/) {
-      my $vschema      = sprintf qq{vb_mart_%s}, $SiteDefs::SITE_RELEASE_VERSION;
-    	my $attr_prefix  = "${bds}_gene";
-      my $biomart_link = sprintf qq{/biomart/martview?VIRTUALSCHEMANAME=%s&ATTRIBUTES=%s.default.feature_page.ensembl_gene_id|%s.default.feature_page.ensembl_transcript_id&FILTERS=%s.default.filters.%s.\\"###ID###\\"&VISIBLEPANEL=resultspanel},
-    	                           $vschema, $attr_prefix, $attr_prefix, $attr_prefix, $bm_filter;
-    	$extlinks->{'Search BioMart'} = $biomart_link;
-    }
-##
-
-    $ontovis->node_links($extlinks);
-
-    my $html = $ontovis->render($chart, $root, $go, $self->image_width);
-    return $html;
+  my $html = $ontovis->render($chart, $root, $go, $self->image_width);
+  return $html;
 }
 
 1;

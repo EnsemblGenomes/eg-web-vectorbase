@@ -253,8 +253,6 @@ sub modify_tree {
    }
    my $go_hash  = $self->object ? $object->get_ontology_chart($dbname, $cluster->{root}) : {};
    next unless (%$go_hash);
-   my @c = grep { $go_hash->{$_}->{selected} } keys %$go_hash;
-   my $num = scalar(@c);
    
    my $url2 = $hub->url({
        type    => 'Gene',
@@ -263,7 +261,7 @@ sub modify_tree {
             });
 
    (my $desc2 = "$cluster->{db}: $cluster->{description}") =~ s/_/ /g;
-   $go_menu->append($self->create_node('Ontology/'.$oid, "$desc2 ($num)",
+   $go_menu->append($self->create_node('Ontology/'.$oid, $desc2,
                [qw( go EnsEMBL::Web::Component::Gene::Ontology )],
                { 'availability' => 'gene', 'concise' => $desc2, 'url' =>  $url2 }
         ));
