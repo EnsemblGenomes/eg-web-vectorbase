@@ -21,7 +21,7 @@ package EnsEMBL::Web::Component::Ontology;
 use strict;
 
 use EnsEMBL::Web::Constants;
-use EnsEMBL::Web::Tools::OntologyVisualisation;
+use EnsEMBL::Web::Document::Image::Ontology;
 
 sub ontology_chart {
   my ($self, $chart, $oname, $root) = @_;
