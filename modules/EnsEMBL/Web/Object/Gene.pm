@@ -34,11 +34,13 @@ sub availability {
         $availability->{'has_2ndary_cons'}    = $tree && $tree->get_tagvalue('ss_cons') ? 1 : 0;
         $availability->{'has_2ndary'}         = ($availability->{'has_2ndary_cons'} || ($obj->canonical_transcript && scalar(@{$obj->canonical_transcript->get_all_Attributes('ncRNA')}))) ? 1 : 0;
       }
+      $availability->{'has_gxa'}              = $self->gxa_check;
 
       $availability->{'alt_allele'}           = $self->table_info($self->get_db, 'alt_allele')->{'rows'};
       $availability->{'regulation'}           = !!$funcgen_res; 
       $availability->{'has_species_tree'}     = $member ? $member->has_GeneGainLossTree : 0;
       $availability->{'family'}               = !!$counts->{families};
+      $availability->{'family_count'}         = $counts->{families};
       $availability->{'not_rnaseq'}           = $self->get_db eq 'rnaseq' ? 0 : 1;
 ## VB      
       $availability->{"has_$_"}               = $counts->{$_} for qw(expression pathways go transcripts alignments paralogs orthologs similarity_matches operons structural_variation pairwise_alignments);
@@ -50,24 +52,9 @@ sub availability {
 ## /VB      
       my $phen_avail = 0;
       if ($self->database('variation')) {
-        my $pfa = Bio::EnsEMBL::Registry->get_adaptor($self->species, 'variation', 'PhenotypeFeature');
-        $phen_avail = $pfa->count_all_by_Gene($self->Obj) ? 1 : 0;
-        
-        if(!$phen_avail) {
-          my $hgncs =  $obj->get_all_DBEntries('hgnc') || [];
-          
-          if(scalar @$hgncs && $hgncs->[0]) {
-            my $hgnc_name = $hgncs->[0]->display_id;
-            if ($hgnc_name) {
-              
-              # this method is super-fast as it uses some direct SQL on a nicely indexed table
-              $phen_avail = ($pfa->_check_gene_by_HGNC($hgnc_name)) ? 1 : 0;
-            }
-          }
-        }
+        $availability->{'has_phenotypes'} = $self->get_phenotype; 
       }
-      $availability->{'phenotype'} = $phen_avail;
-
+      
       if ($self->database('compara_pan_ensembl')) {
         $availability->{'family_pan_ensembl'} = !!$counts->{families_pan};
         $availability->{'has_gene_tree_pan'}  = !!($pan_member && $pan_member->has_GeneTree);
@@ -104,6 +91,7 @@ sub counts {
 #      similarity_matches => $self->count_xrefs
       similarity_matches => $self->get_xref_available,
       operons => 0,
+      alternative_alleles =>  scalar @{$self->get_alt_alleles},
     };
     if ($obj->feature_Slice->can('get_all_Operons')){
       $counts->{'operons'} = scalar @{$obj->feature_Slice->get_all_Operons};
@@ -112,6 +100,7 @@ sub counts {
     if ($self->database('variation')){ 
       my $vdb = $self->species_defs->get_config($self->species,'databases')->{'DATABASE_VARIATION'};
       $counts->{structural_variation} = $vdb->{'tables'}{'structural_variation'}{'rows'};
+      $counts->{phenotypes} = $self->get_phenotype;
     }
     if ($member) {
       $counts->{'orthologs'}  = $member->number_of_orthologues;

@@ -12,16 +12,18 @@ sub valid_species {
   my $self          = shift;
   my %test_species  = map { $_ => 1 } @_;
   my @valid_species = @{$self->{'_valid_species'} || []};
+  
   if (!@valid_species) {
     foreach my $sp (@$SiteDefs::ENSEMBL_DATASETS) {
       my $config = $self->get_config($sp, 'DB_SPECIES');
+      
       if ($config->[0]) {
         push @valid_species, @{$config};
-      }
-      else {
+      } else {
         warn "Species $sp is misconfigured: please check generation of packed file";
       }
     }
+    
     $self->{'_valid_species'} = [ @valid_species ]; # cache the result
   }
 

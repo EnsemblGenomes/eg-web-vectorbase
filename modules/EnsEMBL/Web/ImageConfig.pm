@@ -17,9 +17,9 @@ sub menus {
     
     # Transcripts/Genes
     gene_transcript     => 'Genes and transcripts',
-    transcript          => [ 'Genes',                  'gene_transcript' ],
+    transcript          => [ 'Genes',                  'gene_transcript' ],    
     prediction          => [ 'Prediction transcripts', 'gene_transcript' ],
-    lrg                 => [ 'LRG transcripts',        'gene_transcript' ],
+    lrg                 => [ 'LRG',                    'gene_transcript' ],
     rnaseq              => [ 'RNASeq models',         'gene_transcript' ],
 ## VB    
     cap                 => [ 'Community annotations', 'gene_transcript' ],
@@ -47,7 +47,7 @@ sub menus {
     
     # Variations
     variation           => 'Variation',
-    recombination       => [ 'Recombination & Accessibility', 'variation' ],    
+    recombination       => [ 'Recombination & Accessibility', 'variation' ],
     somatic             => 'Somatic mutations',
     ld_population       => 'Population features',
     
@@ -67,7 +67,7 @@ sub menus {
     repeat              => 'Repeat regions',
     oligo               => 'Oligo probes',
     trans_associated    => 'Transcript features',
-        
+    
     # Info/decorations
     information         => 'Information',
     decorations         => 'Additional decorations',

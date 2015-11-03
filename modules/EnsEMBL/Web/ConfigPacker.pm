@@ -73,11 +73,11 @@ sub _summarise_variation_db {
      elsif ($type eq 'DEFAULT'){ push (@default, $name); }
      elsif ($type eq 'LD'){ push (@ld, $name); } 
    }
-   $self->db_details($db_name)->{'tables'}{'individual.reference_strain'} = $reference;
+   $self->db_details($db_name)->{'tables'}{'sample.reference_strain'} = $reference;
    $self->db_details($db_name)->{'REFERENCE_STRAIN'} = $reference; 
-   $self->db_details($db_name)->{'meta_info'}{'individual.default_strain'} = \@default;
+   $self->db_details($db_name)->{'meta_info'}{'sample.default_strain'} = \@default;
    $self->db_details($db_name)->{'DEFAULT_STRAINS'} = \@default;  
-   $self->db_details($db_name)->{'meta_info'}{'individual.display_strain'} = \@display;
+   $self->db_details($db_name)->{'meta_info'}{'sample.display_strain'} = \@display;
    $self->db_details($db_name)->{'DISPLAY_STRAINS'} = \@display; 
    $self->db_details($db_name)->{'LD_POPULATIONS'} = \@ld;
 
@@ -190,9 +190,9 @@ sub _summarise_variation_db {
   
   # just get all descriptions
   my $vs_aref = $dbh->selectall_arrayref("
-  SELECT a.value, vs.description
-  FROM variation_set vs, attrib a
-  WHERE vs.short_name_attrib_id = a.attrib_id
+	SELECT a.value, vs.description
+	FROM variation_set vs, attrib a
+	WHERE vs.short_name_attrib_id = a.attrib_id
   ");
   
   $set_descriptions{$_->[0]} = $_->[1] for @$vs_aref;
@@ -202,22 +202,24 @@ sub _summarise_variation_db {
   $self->db_details($db_name)->{'tables'}{'variation_set'}{'descriptions'} = \%set_descriptions;
   
 #--------- Add in phenotype information
-  my $pf_aref = $dbh->selectall_arrayref(qq{
-    SELECT pf.type, GROUP_CONCAT(DISTINCT s.name), count(pf.phenotype_feature_id)
-    FROM phenotype_feature pf, source s
-    WHERE pf.source_id=s.source_id AND pf.is_significant=1 AND pf.type!='SupportingStructuralVariation'
-    GROUP BY pf.type
-  });
-  
-  for(@$pf_aref) {
-    $self->db_details($db_name)->{'tables'}{'phenotypes'}{'rows'} += $_->[2];
-    $self->db_details($db_name)->{'tables'}{'phenotypes'}{'types'}{$_->[0]}{'count'} = $_->[2];
-    $self->db_details($db_name)->{'tables'}{'phenotypes'}{'types'}{$_->[0]}{'sources'} = $_->[1];
+  if ($code !~ /variation_private/i) {
+    my $pf_aref = $dbh->selectall_arrayref(qq{
+      SELECT pf.type, GROUP_CONCAT(DISTINCT s.name), count(pf.phenotype_feature_id)
+      FROM phenotype_feature pf, source s
+      WHERE pf.source_id=s.source_id AND pf.is_significant=1 AND pf.type!='SupportingStructuralVariation'
+      GROUP BY pf.type
+    });
+
+    for(@$pf_aref) {
+      $self->db_details($db_name)->{'tables'}{'phenotypes'}{'rows'} += $_->[2];
+      $self->db_details($db_name)->{'tables'}{'phenotypes'}{'types'}{$_->[0]}{'count'} = $_->[2];
+      $self->db_details($db_name)->{'tables'}{'phenotypes'}{'types'}{$_->[0]}{'sources'} = $_->[1];
+    }
   }
 
 #--------- Add in somatic mutation information
   my %somatic_mutations;
-  # Somatic source(s)
+	# Somatic source(s)
   my $sm_aref =  $dbh->selectall_arrayref(
     'select distinct(p.description), pf.phenotype_id, s.name 
      from phenotype p, phenotype_feature pf, source s, study st
@@ -228,15 +230,15 @@ sub _summarise_variation_db {
     $somatic_mutations{$_->[2]}->{$_->[0]} = $_->[1] ;
   } 
   
-  # Mixed source(s)
-  my $mx_aref = $dbh->selectall_arrayref(
-    'select distinct(s.name) from variation v, source s 
-     where v.source_id=s.source_id and s.somatic_status = "mixed"'
-  );
-  foreach (@$mx_aref){ 
+	# Mixed source(s)
+	my $mx_aref = $dbh->selectall_arrayref(
+	  'select distinct(s.name) from variation v, source s 
+		 where v.source_id=s.source_id and s.somatic_status = "mixed"'
+	);
+	foreach (@$mx_aref){ 
     $somatic_mutations{$_->[0]}->{'none'} = 'none' ;
   } 
-  
+	
   $self->db_details($db_name)->{'SOMATIC_MUTATIONS'} = \%somatic_mutations;
 
   ## Do we have SIFT and/or PolyPhen predictions?
@@ -451,7 +453,8 @@ sub _summarise_funcgen_db {
   foreach my $row (@$rs_aref ){
     my ($regbuild_name, $regbuild_string) = @$row; 
     $regbuild_name =~s/regbuild\.//;
-    my @key_info = split(/\./,$regbuild_name); 
+    $regbuild_name =~ /^(.*)\.(.*?)$/;
+    my @key_info = ($1,$2);
     my %data;  
     my @ids = split(/\,/,$regbuild_string);
     my $sth = $dbh->prepare(
