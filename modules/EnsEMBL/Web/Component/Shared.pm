@@ -27,7 +27,7 @@ sub transcript_table {
 
 ## VB-4096 add indian strain links
     $html =~ s/(Projected from Indian strain )\((:?[^\(\\s)]+)\)/$1 (<a href="\/Anopheles_stephensiI\/Gene\/Summary\?g=$2">$2<\/a>)/m;
-    $html =~ s/(Projected from SDA-500 strain )\((:?[^\(\\s)]+)\)/$1 (<a href="\/Anopheles_stephensi\/Gene\/Summary\?g=$2">$2<\/a>)/m;
+    $html =~ s/(Projected from SDA\-500 strain )\((:?[^\(\\s)]+)\)/$1 (<a href="\/Anopheles_stephensi\/Gene\/Summary\?g=$2">$2<\/a>)/m;
 ##
 
   return $html;
