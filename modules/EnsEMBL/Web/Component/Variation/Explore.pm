@@ -20,6 +20,8 @@ package EnsEMBL::Web::Component::Variation::Explore;
 
 use strict;
 
+use previous qw(button_portal);
+
 sub content {
   my $self      = shift;
   my $hub       = $self->hub;
@@ -95,8 +97,8 @@ sub content {
       my $vf_region = sprintf '%s:%s-%s', $vf->seq_region_name, $vf->seq_region_start, $vf->seq_region_end;
 
       push @buttons, (
-        {'title' => 'Sequence conservation via cross-species alignments', 'img' => '96/var_region_ag1000g.png',   'url' => sprintf $link, $hub->param('r') },
-        {'title' => 'Upstream and downstream sequence',                   'img' => '96/var_variant_ag1000g.png',  'url' => sprintf $link, $vf_region },
+        {'title' => 'Ag1000G region view',   'img' => '96/var_region_ag1000g.png',   'url' => sprintf($link, $hub->param('r')), 'target' => '_blank' },
+        {'title' => 'Ag1000G variant locus', 'img' => '96/var_variant_ag1000g.png',  'url' => sprintf($link, $vf_region),       'target' => '_blank' },
       );
     }
   }
@@ -142,5 +144,15 @@ sub content {
   return $html;
 }
 
+## VB - add link targets
+sub button_portal {
+  my ($self, $buttons, $class) = @_;
+  my $html = $self->PREV::button_portal($buttons, $class);
+  foreach (grep {$_->{target}} @{$buttons || []}) {
+    $html =~ s/(href="\Q$_->{url}\E")/$1 target="$_->{target}"/m;
+  }
+  return $html;
+}
+##
 
 1;
