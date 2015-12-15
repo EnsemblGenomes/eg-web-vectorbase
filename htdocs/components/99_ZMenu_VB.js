@@ -1,4 +1,32 @@
 Ensembl.Panel.ZMenu = Ensembl.Panel.ZMenu.extend({
+   populateRegion: function () {
+    var variationGene = !!window.location.pathname.match(/\/Variation_(Gene|Transcript)\/Image/);
+    
+    if (!variationGene || !this.coords.r) {
+      return this._populateRegion();
+    }
+
+    var min   = this.start;
+    var max   = this.end;
+    var scale = (max - min + 1) / (this.areaCoords.r - this.areaCoords.l);
+    var start = Math.floor(min + (this.coords.s - this.areaCoords.l) * scale);
+    var end   = Math.floor(min + (this.coords.s + this.coords.r - this.areaCoords.l) * scale);
+    
+    if (start > end) {
+      var tmp = start;
+      start = end;
+      end   = tmp;
+    }
+
+    start = Math.max(start, min);
+    end   = Math.min(end,   max);
+
+    this.buildMenu(
+      [ '<a class="location_change" href="' + this.baseURL.replace(/%s/, this.chr + ':' + start + '-' + end) + '">Jump to region (' + (end - start) + ' bp)</a>' ],
+      'Region: ' + this.chr + ':' + start + '-' + end
+    );
+  },
+
   _populateRegion: function () {
     var panel        = this;
     var min          = this.start;
