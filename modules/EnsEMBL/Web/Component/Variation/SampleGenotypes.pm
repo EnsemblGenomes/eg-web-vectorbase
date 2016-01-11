@@ -1,4 +1,22 @@
-package EnsEMBL::Web::Component::Variation::IndividualGenotypes;
+=head1 LICENSE
+
+Copyright [1999-2015] Wellcome Trust Sanger Institute and the EMBL-European Bioinformatics Institute
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+=cut
+
+package EnsEMBL::Web::Component::Variation::SampleGenotypes;
 
 use strict;
 
@@ -10,9 +28,9 @@ sub content {
   
   
   my $pop_obj  = $selected_pop ? $self->hub->get_adaptor('get_PopulationAdaptor', 'variation')->fetch_by_dbID($selected_pop) : undef;
-  my %ind_data = %{$object->individual_table($pop_obj)};
+  my %sample_data = %{$object->sample_table($pop_obj)};
 
-  return sprintf '<h3>No individual genotypes for this SNP%s %s</h3>', $selected_pop ? ' in population' : '', $pop_obj->name unless %ind_data;
+  return sprintf '<h3>No sample genotypes for this SNP%s %s</h3>', $selected_pop ? ' in population' : '', $pop_obj->name unless %sample_data;
 
   my (%rows, %pop_names);
   my $flag_children = 0;
@@ -22,10 +40,10 @@ sub content {
   my %group_name;
   my %priority_data;
   my %other_pop_data;
-  my %other_ind_data;
+  my %other_sample_data;
 
 ## VB
-  my @names = map {$_->{'Name'}} values %ind_data;
+  my @names = map {$_->{'Name'}} values %sample_data;
   
   my $variation_db_adaptor = $hub->database('variation');
 
@@ -41,9 +59,8 @@ sub content {
 
   my %sample_name = map { $_->[0] => $_->[1] } @{$sample_st->fetchall_arrayref};
 ##
-
-  foreach my $ind_id (sort { $ind_data{$a}{'Name'} cmp $ind_data{$b}{'Name'} } keys %ind_data) {
-    my $data     = $ind_data{$ind_id};
+  foreach my $sample_id (sort { $sample_data{$a}{'Name'} cmp $sample_data{$b}{'Name'} } keys %sample_data) {
+    my $data     = $sample_data{$sample_id};
     my $genotype = $data->{'Genotypes'};
     
     next if $genotype eq '(indeterminate)';
@@ -53,27 +70,34 @@ sub content {
     my $description = $data->{'Description'} || '-';
     my %populations;
     
-    my $other_ind = 0;
+    my $other_sample = 0;
     
     foreach my $pop(@{$data->{'Population'}}) {
       my $pop_id = $pop->{'ID'};
       next unless ($pop_id);
       
+      $pop->{'Label'} = $pop->{'Name'};
+
       if ($pop->{'Size'} == 1) {
-        $other_ind = 1;
-        $other_ind_data{$pop_id} = 1;
+        $other_sample = 1;
+        $other_sample_data{$pop_id} = 1;
       }
       else {
         $populations{$pop_id} = 1;
         $pop_names{$pop_id} = $pop->{'Name'};
+        
+        if ($pop->{'Label'} =~ /(1000genomes|hapmap)/i) {
+          my @composed_name = split(':', $pop->{'Label'});
+          $pop->{'Label'} = $composed_name[$#composed_name];
+        }
 
         my $priority_level = $pop->{'Priority'};
         if ($priority_level) {
           $group_name{$priority_level} = $pop->{'Group'} unless defined $group_name{$priority_level};
-          $priority_data{$priority_level}{$pop_id} = {'name' => $pop->{'Name'}, 'link' => $pop->{'Link'}};
+          $priority_data{$priority_level}{$pop_id} = {'name' => $pop->{'Name'}, 'label' => $pop->{'Label'}, 'link' => $pop->{'Link'}};
         }
         else {
-          $other_pop_data{$pop_id} = {'name' => $pop->{'Name'}, 'link' => $pop->{'Link'}};
+          $other_pop_data{$pop_id} = {'name' => $pop->{'Name'}, 'label' => $pop->{'Label'}, 'link' => $pop->{'Link'}};
         }
       }
     }
@@ -83,13 +107,18 @@ sub content {
       $genotype =~ s/$al/$al_colours->{$al}/g;
     } 
     
+    my $sample_label = $data->{'Name'};
+    if ($sample_label =~ /(1000\s*genomes|hapmap)/i) {
+      my @composed_name = split(':', $sample_label);
+      $sample_label = $composed_name[$#composed_name];
+    }
+
     my $row = {
 ## VB      
-      Individual  => sprintf("<small><a href=\"/popbio/sample/?id=%s\">$data->{'Name'}</a> (%s)</small>", $sample_name{$data->{'Name'}}, substr($data->{'Gender'}, 0, 1)),
-#     Individual  => sprintf("<small id=\"$data->{'Name'}\">$data->{'Name'} (%s)</small>", substr($data->{'Gender'}, 0, 1)),
-##      
+      Sample  => sprintf("<small id=\"$data->{'Name'}\"><a href=\"/popbio/sample/?id=%s\">$sample_label</a> (%s)</small>", $sample_name{$data->{'Name'}}, substr($data->{'Gender'}, 0, 1)),
+##
       Genotype    => "<small>$genotype</small>",
-      Population  => "<small>".join(", ", sort keys %{{map {$_->{Name} => undef} @{$data->{Population}}}})."</small>",
+      Population  => "<small>".join(", ", sort keys %{{map {$_->{Label} => undef} @{$data->{Population}}}})."</small>",
       Father      => "<small>".($father eq '-' ? $father : "<a href=\"#$father\">$father</a>")."</small>",
       Mother      => "<small>".($mother eq '-' ? $mother : "<a href=\"#$mother\">$mother</a>")."</small>",
       Children    => '-'
@@ -102,10 +131,10 @@ sub content {
       $flag_children = 1;
     }
     
-    if ($other_ind == 1 && scalar(keys %populations) == 0) {  
-      push @{$rows{'other_ind'}}, $row;
-      ## need this to display if there is only one genotype for a sequenced individual
-      $pop_names{"other_ind"} = "single individuals";
+    if ($other_sample == 1 && scalar(keys %populations) == 0) {  
+      push @{$rows{'other_sample'}}, $row;
+      ## need this to display if there is only one genotype for a sequenced sample
+      $pop_names{"other_sample"} = "single samples";
     }
     else {
       push @{$rows{$_}}, $row foreach keys %populations;
@@ -121,18 +150,18 @@ sub content {
     $selected_pop ||= (keys %rows)[0]; # there is only one entry in %rows
 
     my $pop_name = $pop_names{$selected_pop};
-    my $project_url  = $self->pop_url($pop_name);
-    my $pop_url = sprintf('<div style="clear:both"></div><p><a href="%s" rel="external">More information about the <b>%s</b> population &rarr;</a></p>', $project_url, $pop_name); 
+    my $project_url  = $self->pop_url($pop_name,$pop_name);
+    my $pop_url = ($project_url) ? sprintf('<div style="clear:both"></div><p><a href="%s" rel="external">More information about the <b>%s</b> population</a></p>', $project_url, $pop_name) : ''; 
 
     return $self->toggleable_table(
       "Genotypes for $pop_names{$selected_pop}", $selected_pop, 
-      $self->new_table($columns, $rows{$selected_pop}, { data_table => 1, sorting => [ 'Individual asc' ] }),
+      $self->new_table($columns, $rows{$selected_pop}, { data_table => 1, sorting => [ 'Sample asc' ] }),
       1,
       qq{<span style="float:right"><a href="#}.$self->{'id'}.qq{_top">[back to top]</a></span><br />}
     ).$pop_url;
   }
   
-  return $self->summary_tables(\%rows, \%priority_data, \%other_pop_data, \%other_ind_data, \%group_name, $columns);
+  return $self->summary_tables(\%rows, \%priority_data, \%other_pop_data, \%other_sample_data, \%group_name, $columns);
 }
 
 1;
