@@ -10,7 +10,7 @@ sub modify_tree {
   my $object = $self->object;
 
 ## VB
-  $self->delete_node($_) for (qw(Alleles SecondaryStructure Family));
+  $self->delete_node($_) for (qw(Alleles SecondaryStructure Family ExpressionAtlas));
 ##
 
   my $summary = $self->get_node('Summary');
