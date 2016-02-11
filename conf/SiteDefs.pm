@@ -29,6 +29,7 @@ sub update_conf {
 
   $SiteDefs::ENSEMBL_DATASETS = [qw(
     Aedes_aegypti
+    Aedes_albopictus
     Anopheles_albimanus
     Anopheles_arabiensis
     Anopheles_atroparvus
