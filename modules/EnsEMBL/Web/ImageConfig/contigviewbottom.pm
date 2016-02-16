@@ -150,7 +150,7 @@ sub init {
   $self->load_configured_trackhubs;
   $self->load_configured_bigwig;
   $self->load_configured_bigbed;
-#  $self->load_configured_bam;
+  $self->load_configured_gff;
 
   #switch on some variation tracks by default
   if ($self->species_defs->DEFAULT_VARIATION_TRACKS) {

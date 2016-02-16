@@ -21,9 +21,6 @@ sub menus {
     prediction          => [ 'Prediction transcripts', 'gene_transcript' ],
     lrg                 => [ 'LRG',                    'gene_transcript' ],
     rnaseq              => [ 'RNASeq models',         'gene_transcript' ],
-## VB    
-    cap                 => [ 'Community annotations', 'gene_transcript' ],
-## /VB
     
     # Supporting evidence
     splice_sites        => 'Splice sites',

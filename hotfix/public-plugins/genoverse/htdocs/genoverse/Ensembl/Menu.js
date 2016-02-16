@@ -99,9 +99,12 @@ Ensembl.Panel.GenoverseMenu = Ensembl.Panel.ZMenu.extend({
       '<a class="center constant" href="#">Centre here</a>'
     ];
 
-    if ( $('#webapollo-url').length ) {
+    if ( $('#annotation-url').length ) {
       menu.push('<a href="%">View region in WebApollo</a>'.replace('%', 
-        $('#webapollo-url').val().replace('%', this.drag.chr).replace('%', this.drag.start).replace('%', this.drag.end) 
+        $('#annotation-url').val()
+          .replace('###SEQ_REGION###', this.drag.chr)
+          .replace('###START###', this.drag.start)
+          .replace('###END###', this.drag.end); 
       ));
     }
     

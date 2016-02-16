@@ -29,9 +29,8 @@ sub content {
   
   my $species_defs = $self->hub->species_defs;
 
-  if (my $sp = $species_defs->WEBAPOLLO_SPECIES) {
-    my $url = $species_defs->WEBAPOLLO_URL_TEMPLATE =~ s/###ID###/$sp/r;
-    $content .= qq(<input type="hidden" id="webapollo-url" value="$url" />);
+  if (my $url = $species_defs->ANNOTATION_URL) {
+    $content .= qq(<input type="hidden" id="annotation-url" value="$url" />);
   }
 
   return $content;
