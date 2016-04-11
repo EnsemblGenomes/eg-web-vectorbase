@@ -45,9 +45,10 @@ use EnsEMBL::Web::Registry;
 use EnsEMBL::Web::RegObj;
 use EnsEMBL::Web::SpeciesDefs;
 
-use EnsEMBL::Web::Apache::DasHandler;
 use EnsEMBL::Web::Apache::SSI;
 use EnsEMBL::Web::Apache::SpeciesHandler;
+
+use Preload;
 
 our $species_defs = EnsEMBL::Web::SpeciesDefs->new;
 our $MEMD         = EnsEMBL::Web::Cache->new;
@@ -253,7 +254,7 @@ sub handler {
   my $r = shift; # Get the connection handler
   
   $ENSEMBL_WEB_REGISTRY->timer->set_name('REQUEST ' . $r->uri);
-
+  
 ## VB
   if ($r->headers_in->{'User-Agent'} =~ /Spider|Googlebot|Sogou|Baiduspider|Ahrefs|Yahoo|Bing|Soso|YYSpider/i) {
     # disallow pesky search bots
@@ -262,17 +263,23 @@ sub handler {
   }
 ##
   
-  my $u           = $r->parsed_uri;
-  my $file        = $u->path;
-  my $querystring = $u->query;
+  my $u                   = $r->parsed_uri;
+  my $file                = $u->path;
+  my $querystring         = $u->query;
+  my $session_cookie_host = $SiteDefs::ENSEMBL_SESSION_COOKIEHOST;
+  my $user_cookie_host    = $SiteDefs::ENSEMBL_USER_COOKIEHOST;
+  my ($actual_host)       = split /\s*\,\s*/, ($r->headers_in->{'X-Forwarded-Host'} || $r->headers_in->{'Host'});
+     $session_cookie_host = '' if $session_cookie_host && $actual_host !~ /$session_cookie_host$/; # only use ENSEMBL_SESSION_COOKIEHOST if it's same or a subdomain of the actual domain
+     $user_cookie_host    = '' if $user_cookie_host    && $actual_host !~ /$user_cookie_host$/;    # only use ENSEMBL_USER_COOKIEHOST if it's same or a subdomain of the actual domain
+
   my @web_cookies = ({
     'name'            => $SiteDefs::ENSEMBL_SESSION_COOKIE,
     'encrypted'       => 1,
-    'domain'          => $SiteDefs::ENSEMBL_SESSION_COOKIEHOST,
+    'domain'          => $session_cookie_host,
   }, {
     'name'            => $SiteDefs::ENSEMBL_USER_COOKIE,
     'encrypted'       => 1,
-    'domain'          => $SiteDefs::ENSEMBL_USER_COOKIEHOST,
+    'domain'          => $user_cookie_host,
   });
 
   my @existing_cookies = EnsEMBL::Web::Cookie->retrieve($r, @web_cookies);
@@ -453,7 +460,7 @@ sub handler {
   }
   
   if (!$species) {
-    if (grep /$raw_path[0]/, qw(Multi das common default)) {
+    if (grep /$raw_path[0]/, qw(Multi common default)) {
       $species = $raw_path[0];
       shift @path_segments;
     } elsif ($path_segments[0] eq 'Gene' && $querystring) {
@@ -492,13 +499,7 @@ sub handler {
     $file         =~ s|/$||;
   }
   
-  if ($raw_path[0] eq 'das') {
-    my ($das_species) = split /\./, $path_segments[0];
-    
-    $return = EnsEMBL::Web::Apache::DasHandler::handler_das($r, $cookies, $species_map{lc $das_species}, \@path_segments, $querystring);
-    
-    $ENSEMBL_WEB_REGISTRY->timer_push('Handler for DAS scripts finished', undef, 'Apache');
-  } elsif ($species && $species_name) { # species script
+  if ($species && $species_name) { # species script
     $return = EnsEMBL::Web::Apache::SpeciesHandler::handler_species($r, $cookies, $species_name, \@path_segments, $querystring, $file, $species_name eq $species);
     
     $ENSEMBL_WEB_REGISTRY->timer_push('Handler for species scripts finished', undef, 'Apache');
