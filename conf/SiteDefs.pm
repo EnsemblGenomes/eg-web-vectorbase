@@ -53,6 +53,7 @@ sub update_conf {
     Anopheles_stephensi
     Anopheles_stephensiI
     Biomphalaria_glabrata
+    Cimex_lectularius
     Culex_quinquefasciatus
     Glossina_austeni
     Glossina_brevipalpis
