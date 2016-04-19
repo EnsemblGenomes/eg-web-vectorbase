@@ -85,8 +85,8 @@ sub update_conf {
   $SiteDefs::ENSEMBL_MAIL_SERVER    = 'smtp.vectorbase.org';
   $SiteDefs::SITE_FTP               = '/downloads';
   
-  $SiteDefs::VECTORBASE_SEARCH_SITE        = "https://www.vectorbase.org";
-  $SiteDefs::VECTORBASE_EXPRESSION_BROWSER = 'https://www.vectorbase.org/expression-browser';
+  $SiteDefs::VECTORBASE_SEARCH_SITE        = $SiteDefs::ENSEMBL_BASE_URL;
+  $SiteDefs::VECTORBASE_EXPRESSION_BROWSER = $SiteDefs::ENSEMBL_BASE_URL . '/expression-browser';
   
   $SiteDefs::ENSEMBL_LOGINS = 0;
   $SiteDefs::OBJECT_TO_SCRIPT->{'Info'} = 'AltPage';
