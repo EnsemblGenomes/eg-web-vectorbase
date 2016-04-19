@@ -79,7 +79,7 @@ COORD_SYSTEM: foreach my $coord_system (@feature_coord_systems) {
 #       if ( $coord_system->equals( $slice->coord_system ) ) {
         chop(my $slice_v = $coord_system->{version});
         chop(my $feat_v = $slice->coord_system->{version});
-        if ($feat_cs->equals($slice_cs) || $feat_v eq $slice_v) {    
+        if ($coord_system->equals($slice->coord_system) || $feat_v eq $slice_v) {    
 ##   
 
             my $max_len = $self->_max_feature_length
