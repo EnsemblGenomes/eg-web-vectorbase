@@ -6,12 +6,12 @@ sub update_conf {
 
   if (hostname() =~  /fry/) {
     $SiteDefs::ENSEMBL_SERVERNAME   = 'pre.vectorbase.org';
-    $SiteDefs::ENSEMBL_BASE_URL     = 'http://pre.vectorbase.org';
-    $SiteDefs::VECTORBASE_BASE_URL  = 'http://pre.vectorbase.org';
+    $SiteDefs::ENSEMBL_BASE_URL     = 'https://pre.vectorbase.org';
+    $SiteDefs::VECTORBASE_BASE_URL  = 'https://pre.vectorbase.org';
   } else {
     $SiteDefs::ENSEMBL_SERVERNAME   = 'www.vectorbase.org';
-    $SiteDefs::ENSEMBL_BASE_URL     = 'http://www.vectorbase.org';
-    $SiteDefs::VECTORBASE_BASE_URL  = 'http://www.vectorbase.org';
+    $SiteDefs::ENSEMBL_BASE_URL     = 'https://www.vectorbase.org';
+    $SiteDefs::VECTORBASE_BASE_URL  = 'https://www.vectorbase.org';
   }
 
   $SiteDefs::SITE_RELEASE_VERSION  = '1604';
