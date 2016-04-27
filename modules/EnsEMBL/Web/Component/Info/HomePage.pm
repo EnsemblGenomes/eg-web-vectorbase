@@ -177,13 +177,66 @@ sub _variation_text {
     $html .= '<h2>Variation</h2><p>This species currently has no variation database. However you can process your own variants using the Variant Effect Predictor:</p>';
   }
 
-  my $new_vep = $species_defs->ENSEMBL_VEP_ENABLED;
-  $html .= sprintf(
-    qq(<p><a href="%s" class="%snodeco">$self->{'icon'}Variant Effect Predictor<img src="%svep_logo_sm.png" style="vertical-align:top;margin-left:12px" /></a></p>),
-    $hub->url({'__clear' => 1, $new_vep ? qw(type Tools action VEP) : qw(type UserData action UploadVariations)}),
-    $new_vep ? '' : 'modal_link ',
-    $self->img_url
-  );
+## VB - disabled for now
+  # my $new_vep = $species_defs->ENSEMBL_VEP_ENABLED;
+  # $html .= sprintf(
+  #   qq(<p><a href="%s" class="%snodeco">$self->{'icon'}Variant Effect Predictor<img src="%svep_logo_sm.png" style="vertical-align:top;margin-left:12px" /></a></p>),
+  #   $hub->url({'__clear' => 1, $new_vep ? qw(type Tools action VEP) : qw(type UserData action UploadVariations)}),
+  #   $new_vep ? '' : 'modal_link ',
+  #   $self->img_url
+  # );
+##
+
+  return $html;
+}
+
+sub _genebuild_text {
+  my $self            = shift;
+  my $hub             = $self->hub;
+  my $species_defs    = $hub->species_defs;
+  my $species         = $hub->species;
+  my $img_url         = $self->img_url;
+  my $sample_data     = $species_defs->SAMPLE_DATA;
+  my $ensembl_version = $self->_site_release;
+  my $vega            = $species_defs->get_config('MULTI', 'ENSEMBL_VEGA');
+  my $has_vega        = $vega->{$species};
+
+  my $html = '<div class="homepage-icon">';
+
+  my $gene_text = $sample_data->{'GENE_TEXT'};
+  my $gene_url  = $species_defs->species_path . '/Gene/Summary?g=' . $sample_data->{'GENE_PARAM'};
+  $html .= qq(<a class="nodeco _ht" href="$gene_url" title="Go to gene $gene_text"><img src="${img_url}96/gene.png" class="bordered" /><span>Example gene</span></a>);
+
+  my $trans_text = $sample_data->{'TRANSCRIPT_TEXT'};
+  my $trans_url  = $species_defs->species_path . '/Transcript/Summary?t=' . $sample_data->{'TRANSCRIPT_PARAM'};
+  $html .= qq(<a class="nodeco _ht" href="$trans_url" title="Go to transcript $trans_text"><img src="${img_url}96/transcript.png" class="bordered" /><span>Example transcript</span></a>);
+
+  $html .= '</div>'; #homepage-icon
+
+  $html .= '<h2>Gene annotation</h2><p><strong>What can I find?</strong> Protein-coding and non-coding genes, splice variants, cDNA and protein sequences, non-coding RNAs.</p>';
+  $html .= qq(<p><a href="/$species/Info/Annotation/#genebuild" class="nodeco"><img src="${img_url}24/info.png" alt="" class="homepage-link" />More about this genebuild</a></p>);
+
+  if ($species_defs->ENSEMBL_FTP_URL) {
+    my $dataset = $species_defs->SPECIES_DATASET;
+    my $fasta_url = $hub->get_ExtURL('SPECIES_FTP_URL',{GENOMIC_UNIT=>$species_defs->GENOMIC_UNIT,VERSION=>$ensembl_version, FORMAT=>'fasta', SPECIES=> ($dataset ne $species) ? lc($dataset) . "_collection/" . lc $species : lc $species},{class=>'nodeco'});
+    my $gff3_url  = $hub->get_ExtURL('SPECIES_FTP_URL',{GENOMIC_UNIT=>$species_defs->GENOMIC_UNIT,VERSION=>$ensembl_version, FORMAT=>'gff3', SPECIES=> ($dataset ne $species) ? lc($dataset) . "_collection/" . lc $species : lc $species},{class=>'nodeco'});
+    $html .= qq[<p><img src="${img_url}24/download.png" alt="" class="homepage-link" />Download genes, cDNAs, ncRNA, proteins - <span class="center"><a href="$fasta_url" class="nodeco">FASTA</a> - <a href="$gff3_url" class="nodeco">GFF3</a></span></p>];
+  }
+ 
+ ## VB disabled for now
+  #my $im_url = $hub->url({'type' => 'Tools', 'action' => 'IDMapper'});
+  #$html .= qq(<p><a href="$im_url" class="nodeco"><img src="${img_url}24/tool.png" class="homepage-link" />Update your old Ensembl IDs</a></p>);
+##
+
+  if ($has_vega) {
+    $html .= qq(
+      <a href="http://vega.sanger.ac.uk/$species/" class="nodeco">
+      <img src="/img/vega_small.gif" alt="Vega logo" style="float:left;margin-right:8px;width:83px;height:30px;vertical-align:center" title="Vega - Vertebrate Genome Annotation database" /></a>
+      <p>
+        Additional manual annotation can be found in <a href="http://vega.sanger.ac.uk/$species/" class="nodeco">Vega</a>
+      </p>
+    );
+  }
 
   return $html;
 }
