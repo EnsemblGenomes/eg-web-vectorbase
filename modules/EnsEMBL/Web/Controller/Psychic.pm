@@ -35,7 +35,7 @@ sub psychic {
   my $vb_url = '/search/site/' . uri_escape($query);
   if ($species) {
     my $sp = $species_defs->get_config($species, 'SPECIES_SCIENTIFIC_NAME');
-    $vb_url .= '?species_category="' . uri_escape($sp) '"';
+    $vb_url .= '?species_category="' . uri_escape($sp) . '"';
   }
 ## /VB
 
