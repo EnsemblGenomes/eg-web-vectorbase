@@ -35,7 +35,7 @@ sub psychic {
   my $vb_url = '/search/site/' . uri_escape($query);
   if ($species) {
     my $sp = $species_defs->get_config($species, 'SPECIES_SCIENTIFIC_NAME');
-    $vb_url .= '?species_category=' . uri_escape(qq{"$sp"});
+    $vb_url .= '?species_category="' . uri_escape($sp) '"';
   }
 ## /VB
 
@@ -149,7 +149,7 @@ sub psychic {
   $site = $species_defs->VECTORBASE_SEARCH_SITE if ($url eq $vb_url);
 ## /VB
 
-  #warn "SITE: $site, URL: $url";
+  warn "SITE: $site, URL: $url";
 
   $hub->redirect($site . $url);
 }
