@@ -120,7 +120,6 @@ sub add_individual_selector {
 
   foreach my $i (sort @strains) {
     if (!$seen{$i}++) {
-      
       my $groups      = $individual_groups{$i};
       my $class       = $groups ? join(' ', map {"ins_group_$_"} @$groups ) : undef;
       
@@ -143,10 +142,34 @@ sub add_individual_selector {
 
   # render
   
-  $self->add_fieldset('Selected individuals')->append_child('div', { 
+  my $ss_tip = 'Click to launch Sample Search';
+  my $ss_url = sprintf(
+    '%s/app#?g=%s&t=%s&s=%s', 
+    $SiteDefs::VECTORBASE_SAMPLE_SEARCH_URL,
+    $hub->param('g'), 
+    $hub->param('t'),
+    $hub->species, 
+  );
+
+  $self->add_fieldset('Sample search')->append_child('div', { 
     inner_HTML => sprintf (
       qq{
-        <p>Select the individuals you wish to view from the list below. You can norrow the list by typing in the filter box. <b>Please note:</b> selecting large numbers of individuals may cause this view to become unresponsive - the suggested maximum is 100.</p>            
+        <p>
+          Try the new Sample Search (beta)
+        </p>
+        <p>
+          <a class="button no_img " href="$ss_url" title="$ss_tip" target="_blank">Launch Sample Search</a>
+        <p>
+          <a href="$ss_url" target="_blank"><img src="/img/sample-search.png" alt="Sample search screenshot" title="$ss_tip" style="width:408px; height: 400px; border: #dddddd 1px solid" /></a>
+        </p>          
+      },
+    )
+  });
+
+  $self->add_fieldset('Selected samples')->append_child('div', { 
+    inner_HTML => sprintf (
+      qq{
+        <p>Select the samples you wish to view from the list below. You can norrow the list by typing in the filter box. <b>Please note:</b> selecting large numbers of samples may cause this view to become unresponsive - the suggested maximum is 100.</p>            
         <div id="IndividualSelector" class="js_panel">
           <input type="hidden" class="subpanel_type" value="IndividualSelector" />
           <div style="text-align:right;margin-bottom:5px;"><a href="#" class="button">Select / deselect all</a></div>
@@ -157,10 +180,10 @@ sub add_individual_selector {
     )
   });
   
-  $self->add_fieldset('Individual metadata')->append_child('div', { 
+  $self->add_fieldset('Sample metadata')->append_child('div', { 
     inner_HTML => sprintf (
       qq{
-        <p>Select the groups of individuals you wish to view from the list below. You can norrow the list by typing in the filter box. <b>Please note:</b> selecting large numbers of individuals may cause this view to become unresponsive - the suggested maximum is 100.</p>
+        <p>Select the groups of samples you wish to view from the list below. You can norrow the list by typing in the filter box. <b>Please note:</b> selecting large numbers of samples may cause this view to become unresponsive - the suggested maximum is 100.</p>
         <div id="IndividualMetaSelector" class="js_panel">
           <input type="hidden" class="subpanel_type" value="IndividualMetaSelector" />
           %s
