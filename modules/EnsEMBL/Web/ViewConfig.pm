@@ -24,6 +24,7 @@ use strict;
 
 use EnsEMBL::Web::DBSQL::SampleMetaAdaptor;
 use EnsEMBL::Web::Document::Table;
+use URI::Escape;
 
 sub get_individual_metadata_summary {
   my $self = shift;
@@ -142,28 +143,29 @@ sub add_individual_selector {
 
   # render
   
-  my $ss_tip = 'Click to launch Sample Search';
+  my $referer = $hub->referer;
+  my $redirect_url = join '/', $referer->{ENSEMBL_TYPE}, $referer->{ENSEMBL_ACTION}, $referer->{ENSEMBL_FUNCTION};
+  $redirect_url =~ s/\/$//; # strip trailing slash
   my $ss_url = sprintf(
-    '%s/app#?g=%s&t=%s&s=%s', 
+    '%s/app#?g=%s&t=%s&s=%s&redirect_url=%s', 
     $SiteDefs::VECTORBASE_SAMPLE_SEARCH_URL,
-    $hub->param('g'), 
-    $hub->param('t'),
+    $referer->{params}->{g}->[0] || '', 
+    $referer->{params}->{t}->[0] || '',
     $hub->species, 
+    uri_escape($redirect_url), 
   );
 
   $self->add_fieldset('Sample search')->append_child('div', { 
-    inner_HTML => sprintf (
-      qq{
+    inner_HTML => qq{
         <p>
           Try the new Sample Search (beta)
         </p>
         <p>
-          <a class="button no_img " href="$ss_url" title="$ss_tip" target="_blank">Launch Sample Search</a>
+          <a class="button no_img " href="$ss_url" title="Click to launch Sample Search" target="_blank">Launch Sample Search</a>
         <p>
-          <a href="$ss_url" target="_blank"><img src="/img/sample-search.png" alt="Sample search screenshot" title="$ss_tip" style="width:408px; height: 400px; border: #dddddd 1px solid" /></a>
+          <a href="$ss_url" target="_blank"><img src="/img/sample-search.png" alt="Sample search screenshot" title="Click to launch Sample Search" style="width:408px; height: 400px; border: #dddddd 1px solid" /></a>
         </p>          
-      },
-    )
+    }
   });
 
   $self->add_fieldset('Selected samples')->append_child('div', { 
