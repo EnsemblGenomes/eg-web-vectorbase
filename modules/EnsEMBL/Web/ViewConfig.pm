@@ -147,7 +147,7 @@ sub add_individual_selector {
   my $redirect_url = join '/', $referer->{ENSEMBL_TYPE}, $referer->{ENSEMBL_ACTION}, $referer->{ENSEMBL_FUNCTION};
   $redirect_url =~ s/\/$//; # strip trailing slash
   my $ss_url = sprintf(
-    '%s/app#?g=%s&t=%s&s=%s&redirect_url=%s', 
+    '%s/#?g=%s&t=%s&s=%s&redirect_url=%s', 
     $SiteDefs::VECTORBASE_SAMPLE_SEARCH_URL,
     $referer->{params}->{g}->[0] || '', 
     $referer->{params}->{t}->[0] || '',
