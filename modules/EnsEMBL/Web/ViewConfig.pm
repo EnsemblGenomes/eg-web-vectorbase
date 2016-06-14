@@ -24,6 +24,7 @@ use strict;
 
 use EnsEMBL::Web::DBSQL::SampleMetaAdaptor;
 use EnsEMBL::Web::Document::Table;
+use URI::Escape;
 
 sub get_individual_metadata_summary {
   my $self = shift;
@@ -120,7 +121,6 @@ sub add_individual_selector {
 
   foreach my $i (sort @strains) {
     if (!$seen{$i}++) {
-      
       my $groups      = $individual_groups{$i};
       my $class       = $groups ? join(' ', map {"ins_group_$_"} @$groups ) : undef;
       
@@ -143,10 +143,35 @@ sub add_individual_selector {
 
   # render
   
-  $self->add_fieldset('Selected individuals')->append_child('div', { 
+  my $referer = $hub->referer;
+  my $redirect_url = join '/', $referer->{ENSEMBL_TYPE}, $referer->{ENSEMBL_ACTION}, $referer->{ENSEMBL_FUNCTION};
+  $redirect_url =~ s/\/$//; # strip trailing slash
+  my $ss_url = sprintf(
+    '%s/#?g=%s&t=%s&s=%s&redirect_url=%s', 
+    $SiteDefs::VECTORBASE_SAMPLE_SEARCH_URL,
+    $referer->{params}->{g}->[0] || '', 
+    $referer->{params}->{t}->[0] || '',
+    $hub->species, 
+    uri_escape($redirect_url), 
+  );
+
+  $self->add_fieldset('Sample search')->append_child('div', { 
+    inner_HTML => qq{
+        <p>
+          Try the new Sample Search (beta)
+        </p>
+        <p>
+          <a class="button no_img " href="$ss_url" title="Click to launch Sample Search" target="_blank">Launch Sample Search</a>
+        <p>
+          <a href="$ss_url" target="_blank"><img src="/img/sample-search.png" alt="Sample search screenshot" title="Click to launch Sample Search" style="width:408px; height: 400px; border: #dddddd 1px solid" /></a>
+        </p>          
+    }
+  });
+
+  $self->add_fieldset('Selected samples')->append_child('div', { 
     inner_HTML => sprintf (
       qq{
-        <p>Select the individuals you wish to view from the list below. You can norrow the list by typing in the filter box. <b>Please note:</b> selecting large numbers of individuals may cause this view to become unresponsive - the suggested maximum is 100.</p>            
+        <p>Select the samples you wish to view from the list below. You can norrow the list by typing in the filter box. <b>Please note:</b> selecting large numbers of samples may cause this view to become unresponsive - the suggested maximum is 100.</p>            
         <div id="IndividualSelector" class="js_panel">
           <input type="hidden" class="subpanel_type" value="IndividualSelector" />
           <div style="text-align:right;margin-bottom:5px;"><a href="#" class="button">Select / deselect all</a></div>
@@ -157,10 +182,10 @@ sub add_individual_selector {
     )
   });
   
-  $self->add_fieldset('Individual metadata')->append_child('div', { 
+  $self->add_fieldset('Sample metadata')->append_child('div', { 
     inner_HTML => sprintf (
       qq{
-        <p>Select the groups of individuals you wish to view from the list below. You can norrow the list by typing in the filter box. <b>Please note:</b> selecting large numbers of individuals may cause this view to become unresponsive - the suggested maximum is 100.</p>
+        <p>Select the groups of samples you wish to view from the list below. You can norrow the list by typing in the filter box. <b>Please note:</b> selecting large numbers of samples may cause this view to become unresponsive - the suggested maximum is 100.</p>
         <div id="IndividualMetaSelector" class="js_panel">
           <input type="hidden" class="subpanel_type" value="IndividualMetaSelector" />
           %s
