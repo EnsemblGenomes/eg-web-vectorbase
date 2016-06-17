@@ -5,26 +5,27 @@ use Sys::Hostname;
 sub update_conf {
 
   if (hostname() =~  /fry/) {
-    $SiteDefs::ENSEMBL_SERVERNAME   = 'pre.vectorbase.org';
-    $SiteDefs::ENSEMBL_BASE_URL     = 'https://pre.vectorbase.org';
-    $SiteDefs::VECTORBASE_BASE_URL  = 'https://pre.vectorbase.org';
+    $SiteDefs::ENSEMBL_SERVERNAME  = 'pre.vectorbase.org';
+    $SiteDefs::ENSEMBL_BASE_URL    = 'https://pre.vectorbase.org';
+    $SiteDefs::VECTORBASE_BASE_URL = 'https://pre.vectorbase.org';
   } else {
-    $SiteDefs::ENSEMBL_SERVERNAME   = 'www.vectorbase.org';
-    $SiteDefs::ENSEMBL_BASE_URL     = 'https://www.vectorbase.org';
-    $SiteDefs::VECTORBASE_BASE_URL  = 'https://www.vectorbase.org';
+    $SiteDefs::ENSEMBL_SERVERNAME  = 'www.vectorbase.org';
+    $SiteDefs::ENSEMBL_BASE_URL    = 'https://www.vectorbase.org';
+    $SiteDefs::VECTORBASE_BASE_URL = 'https://www.vectorbase.org';
   }
 
-  $SiteDefs::SITE_RELEASE_VERSION  = '1606';
-  $SiteDefs::SITE_RELEASE_DATE     = 'June 2016';
-  $SiteDefs::VECTORBASE_VERSION    = 'VB-2016-06';
+  $SiteDefs::SITE_RELEASE_VERSION = '1606';
+  $SiteDefs::SITE_RELEASE_DATE    = 'June 2016';
+  $SiteDefs::VECTORBASE_VERSION   = 'VB-2016-06';
 
-  $SiteDefs::ENSEMBL_PORT       = 8080; 
-  $SiteDefs::APACHE_BIN         = '/usr/sbin/httpd';
-  $SiteDefs::APACHE_DIR         = '/etc/httpd';
-  $SiteDefs::SAMTOOLS_DIR       = '/nfs/public/rw/ensembl/samtools';
-  $SiteDefs::MWIGGLE_DIR        = '/nfs/public/rw/ensembl/tools/mwiggle/';
-
-  $SiteDefs::ENSEMBL_PRIMARY_SPECIES = 'Anopheles_gambiae';
+  $SiteDefs::ENSEMBL_PORT = 8080; 
+  $SiteDefs::APACHE_BIN   = '/usr/sbin/httpd';
+  $SiteDefs::APACHE_DIR   = '/etc/httpd';
+  $SiteDefs::SAMTOOLS_DIR = '/nfs/public/rw/ensembl/samtools';
+  $SiteDefs::MWIGGLE_DIR  = '/nfs/public/rw/ensembl/tools/mwiggle/';
+  $SiteDefs::HTSLIB_DIR   = '/nfs/public/rw/ensembl/tools/htslib/';
+  
+  $SiteDefs::ENSEMBL_PRIMARY_SPECIES   = 'Anopheles_gambiae';
   $SiteDefs::ENSEMBL_SECONDARY_SPECIES ='Aedes_aegypti';
 
   $SiteDefs::ENSEMBL_DATASETS = [qw(
@@ -87,12 +88,34 @@ sub update_conf {
   
   $SiteDefs::VECTORBASE_SEARCH_SITE        = $SiteDefs::ENSEMBL_BASE_URL;
   $SiteDefs::VECTORBASE_EXPRESSION_BROWSER = $SiteDefs::ENSEMBL_BASE_URL . '/expression-browser';
-  $SiteDefs::VECTORBASE_SAMPLE_SEARCH_URL   = $SiteDefs::ENSEMBL_BASE_URL . '/sample-search';
+  $SiteDefs::VECTORBASE_SAMPLE_SEARCH_URL  = $SiteDefs::ENSEMBL_BASE_URL . '/sample-search';
   #$SiteDefs::VECTORBASE_SAMPLE_SEARCH_URL   = 'http://gunpowder.ebi.ac.uk:10971';
   
   $SiteDefs::ENSEMBL_LOGINS = 0;
   $SiteDefs::OBJECT_TO_SCRIPT->{'Info'} = 'AltPage';
   $siteDefs::UDC_CACHEDIR = '/tmp';
+
+  $SiteDefs::ENSEMBL_BLAST_ENABLED = 0;
+
+  # Assembly converter
+  $SiteDefs::ENSEMBL_AC_ENABLED          = 1;
+  $SiteDefs::ASSEMBLY_CONVERTER_BIN_PATH = '/nfs/public/rw/ensembl/python/bin/CrossMap.py';
+  $SiteDefs::ENSEMBL_CHAIN_FILE_DIR      = sprintf '/vectorbase/data/%s/assembly_converter', $SiteDefs::VECTORBASE_VERSION;
+  
+  # VEP    
+  $SiteDefs::ENSEMBL_VEP_ENABLED   = 1;
+  $SiteDefs::ENSEMBL_VEP_CACHE_DIR = undef; # no cache
+  $SiteDefs::ENSEMBL_VEP_FILTER_SCRIPT_OPTIONS = {
+    '-host' => 'localhost',
+    '-port' => '3306',
+    '-user' => 'ensro',
+  };
+  $SiteDefs::ENSEMBL_VEP_SCRIPT_DEFAULT_OPTIONS = {
+    '--host' => 'localhost',
+    '--port' => '3306',
+    '--user' => 'ensro',
+    '--fork' => 4,
+  };
 }
 
 1;

@@ -63,10 +63,11 @@ sub _assembly_text {
   }
   
   # Link to assembly mapper
-  my $mappings = $species_defs->ASSEMBLY_MAPPINGS;
-  if ($mappings && ref($mappings) eq 'ARRAY') {
-    my $am_url = $hub->url({'type' => 'UserData', 'action' => 'SelectFeatures'});
-    $html .= qq(<p><a href="$am_url" class="modal_link nodeco"><img src="${img_url}24/tool.png" class="homepage-link" />Convert your data to $assembly coordinates</a></p>);
+  if ($species_defs->ENSEMBL_AC_ENABLED and $species_defs->ASSEMBLY_CONVERTER_FILES) {
+    $html .= sprintf('<a href="%s" class="nodeco"><img src="%s24/tool.png" class="homepage-link" />Convert your data to %s coordinates</a></p>', $hub->url({'type' => 'Tools', 'action' => 'AssemblyConverter'}), $img_url, $current_assembly);
+  }
+  elsif (ref($species_defs->ASSEMBLY_MAPPINGS) eq 'ARRAY') {
+    $html .= sprintf('<a href="%s" class="modal_link nodeco" rel="modal_user_data"><img src="%s24/tool.png" class="homepage-link" />Convert your data to %s coordinates</a></p>', $hub->url({'type' => 'UserData', 'action' => 'SelectFeatures', __clear => 1}), $img_url, $current_assembly);
   }
 
 #EG no old assemblies
@@ -177,15 +178,13 @@ sub _variation_text {
     $html .= '<h2>Variation</h2><p>This species currently has no variation database. However you can process your own variants using the Variant Effect Predictor:</p>';
   }
 
-## VB - disabled for now
-  # my $new_vep = $species_defs->ENSEMBL_VEP_ENABLED;
-  # $html .= sprintf(
-  #   qq(<p><a href="%s" class="%snodeco">$self->{'icon'}Variant Effect Predictor<img src="%svep_logo_sm.png" style="vertical-align:top;margin-left:12px" /></a></p>),
-  #   $hub->url({'__clear' => 1, $new_vep ? qw(type Tools action VEP) : qw(type UserData action UploadVariations)}),
-  #   $new_vep ? '' : 'modal_link ',
-  #   $self->img_url
-  # );
-##
+  my $new_vep = $species_defs->ENSEMBL_VEP_ENABLED;
+  $html .= sprintf(
+    qq(<p><a href="%s" class="%snodeco">$self->{'icon'}Variant Effect Predictor<img src="%svep_logo_sm.png" style="vertical-align:top;margin-left:12px" /></a></p>),
+    $hub->url({'__clear' => 1, $new_vep ? qw(type Tools action VEP) : qw(type UserData action UploadVariations)}),
+    $new_vep ? '' : 'modal_link ',
+    $self->img_url
+  );
 
   return $html;
 }
@@ -223,10 +222,8 @@ sub _genebuild_text {
     $html .= qq[<p><img src="${img_url}24/download.png" alt="" class="homepage-link" />Download genes, cDNAs, ncRNA, proteins - <span class="center"><a href="$fasta_url" class="nodeco">FASTA</a> - <a href="$gff3_url" class="nodeco">GFF3</a></span></p>];
   }
  
- ## VB disabled for now
-  #my $im_url = $hub->url({'type' => 'Tools', 'action' => 'IDMapper'});
-  #$html .= qq(<p><a href="$im_url" class="nodeco"><img src="${img_url}24/tool.png" class="homepage-link" />Update your old Ensembl IDs</a></p>);
-##
+  my $im_url = $hub->url({'type' => 'Tools', 'action' => 'IDMapper'});
+  $html .= qq(<p><a href="$im_url" class="nodeco"><img src="${img_url}24/tool.png" class="homepage-link" />Update your old Ensembl IDs</a></p>);
 
   if ($has_vega) {
     $html .= qq(
