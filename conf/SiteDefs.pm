@@ -89,6 +89,9 @@ sub update_conf {
   $SiteDefs::VECTORBASE_SEARCH_SITE        = $SiteDefs::ENSEMBL_BASE_URL;
   $SiteDefs::VECTORBASE_EXPRESSION_BROWSER = $SiteDefs::ENSEMBL_BASE_URL . '/expression-browser';
   $SiteDefs::VECTORBASE_SAMPLE_SEARCH_URL  = $SiteDefs::ENSEMBL_BASE_URL . '/sample-search';
+
+  $SiteDefs::ENSEMBL_REST_URL = $SiteDefs::ENSEMBL_BASE_URL . '/rest';
+
   #$SiteDefs::VECTORBASE_SAMPLE_SEARCH_URL   = 'http://gunpowder.ebi.ac.uk:10971';
   
   $SiteDefs::ENSEMBL_LOGINS = 0;
