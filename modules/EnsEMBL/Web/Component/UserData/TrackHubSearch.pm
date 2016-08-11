@@ -51,7 +51,9 @@ sub content {
   return unless $rest;
 
   ## Compare species available on registry with valid species for this site
-  my %local_species = map {$_ => 1} $sd->valid_species;
+## VB
+  my %local_species = map {$sd->get_config($_, 'ASSEMBLY_ACCESSION') => $_} $sd->valid_species;
+##
 
   my $endpoint = 'api/info/assemblies';
   
@@ -61,18 +63,19 @@ sub content {
     $html = $self->warning_panel('Oops!', 'Sorry, we are unable to fetch data from the Track Hub Registry at the moment. You may wish to <a href="http://www.trackhubregistry.org/" rel="external">visit the registry</a> directly to search for a hub.');
   }
   else {
-    my $ok_species   = {};
-
-    foreach (keys %{$rest_species||[]}) {
-      (my $species = $_) =~ s/ /_/;
-      if ($local_species{$species}) {
-        my $gca = $sd->get_config($species, 'ASSEMBLY_ACCESSION');
-        if (grep $gca, @{$rest_species->{$_}||[]}) {
-          $ok_species->{$species} = $_;
-        }
-      }
+## VB we don't have species name mappings for THR so use GCA only
+    my @gcas;
+    if ($rest_species) {
+      push @gcas, @{$_||[]} for (values %$rest_species);
     }
 
+    my $ok_species = {};
+    foreach (@gcas) {
+      if (my $species = $local_species{$_}) {
+        $ok_species->{$species} = 1;
+      }
+    }
+##
     my ($form, $fieldset, $message);
 
     ## Do we have usable data?

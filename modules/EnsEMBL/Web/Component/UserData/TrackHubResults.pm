@@ -128,6 +128,10 @@ sub content {
         $post_content->{'assembly'} = $the_assemblies->{$this_assembly};
       }
     }
+## VB
+    # we don;t have reliable species name mappings for THR so better to rely on assembly alone
+    delete $post_content->{'species'};
+##
   }
   ## EG: the end.
 
