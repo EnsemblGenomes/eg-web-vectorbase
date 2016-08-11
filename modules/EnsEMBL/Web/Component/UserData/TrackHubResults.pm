@@ -181,8 +181,9 @@ sub content {
       }
 
       foreach (@{$result->{'items'}}) {
-        (my $species = $_->{'species'}{'scientific_name'}) =~ s/ /_/;
-
+## VB
+        my $species = $hub->species;
+##
         ## Is this hub already attached?
         my ($ignore, $params) = EnsEMBL::Web::Command::UserData::check_attachment($self, $_->{'hub'}{'url'});
         my $button;
