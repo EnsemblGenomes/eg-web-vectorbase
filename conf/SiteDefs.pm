@@ -92,7 +92,6 @@ sub update_conf {
   #$SiteDefs::VECTORBASE_SAMPLE_SEARCH_URL   = 'http://gunpowder.ebi.ac.uk:10971';
   
   $SiteDefs::ENSEMBL_LOGINS = 0;
-  $SiteDefs::OBJECT_TO_SCRIPT->{'Info'} = 'AltPage';
   $siteDefs::UDC_CACHEDIR = '/tmp';
 
   $SiteDefs::ENSEMBL_BLAST_ENABLED = 0;
