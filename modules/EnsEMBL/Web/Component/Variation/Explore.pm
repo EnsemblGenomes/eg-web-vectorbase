@@ -22,7 +22,7 @@ use strict;
 
 use previous qw(button_portal);
 
-sub content {
+sub XXXcontent {
   my $self      = shift;
   my $hub       = $self->hub;
   my $object    = $self->object;
@@ -93,7 +93,7 @@ sub content {
   );
 
 ## VB
-  if ($hub->species eq 'Anopheles_gambiae') {
+  if ($hub->species eq 'Anopheles_gambiae' and $hub->param('vf')) {
     my $vf = $variation->get_VariationFeature_by_dbID($hub->param('vf'));
     if ($vf) {
 
