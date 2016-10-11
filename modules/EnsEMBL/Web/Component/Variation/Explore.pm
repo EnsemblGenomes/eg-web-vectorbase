@@ -22,7 +22,7 @@ use strict;
 
 use previous qw(button_portal);
 
-sub XXXcontent {
+sub content {
   my $self      = shift;
   my $hub       = $self->hub;
   my $object    = $self->object;
