@@ -4,6 +4,8 @@ use strict;
 use warnings;
 no warnings "uninitialized";
 
+use previous qw(assembly_lookup);
+
 sub valid_species {
   ### Filters the list of species to those configured in the object.
   ### If an empty list is passes, returns a list of all configured species
@@ -36,6 +38,18 @@ sub valid_species {
   ## /VB
     
   return @valid_species;
+}
+
+## VB-5588 make sure we always have assembly-only keys
+##         this is a hack to ensure trackhubs can attach - needs revisiting
+sub assembly_lookup {
+  my $self = shift
+  my $lookup = $self->PREV::assembly_lookup(@_);
+  foreach ($self->valid_species) {
+    my $assembly = $self->get_config($_, 'ASSEMBLY_VERSION');
+    $lookup->{$assembly} = [$_, $assembly, 0];
+  }
+  return $lookup;
 }
 
 1;
