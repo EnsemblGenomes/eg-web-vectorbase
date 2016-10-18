@@ -4,8 +4,6 @@ use strict;
 use warnings;
 no warnings "uninitialized";
 
-use previous qw(assembly_lookup);
-
 sub valid_species {
   ### Filters the list of species to those configured in the object.
   ### If an empty list is passes, returns a list of all configured species
@@ -40,14 +38,44 @@ sub valid_species {
   return @valid_species;
 }
 
-## VB-5588 make sure we always have assembly-only keys
-##         this is a hack to ensure trackhubs can attach - needs revisiting
 sub assembly_lookup {
-  my $self = shift
-  my $lookup = $self->PREV::assembly_lookup(@_);
+### Hash used to check if a given file or trackhub contains usable data
+### @param old_assemblies - flag to indicate that older assemblies should be included
+### @return lookup Hashref
+###   The keys of this hashref are of the following two types:
+###       - species_assembly    - used for attaching remote indexed files
+###       - UCSC identifier     - used for checking trackhubs
+  my ($self, $old_assemblies) = @_;
+  my $lookup = {};
   foreach ($self->valid_species) {
     my $assembly = $self->get_config($_, 'ASSEMBLY_VERSION');
-    $lookup->{$assembly} = [$_, $assembly, 0];
+
+    ## REMOTE INDEXED FILES
+    ## Unique keys, needed for attaching URL data to correct species
+    ## even when assembly name is not unique
+    $lookup->{$_.'_'.$assembly} = [$_, $assembly, 0];
+
+    ## TRACKHUBS
+    ## Add UCSC assembly name if available
+    if ($self->get_config($_, 'UCSC_GOLDEN_PATH')) {
+      $lookup->{$self->get_config($_, 'UCSC_GOLDEN_PATH')} = [$_, $assembly, 0];
+    }
+## VB-5588 make sure we always have assembly-only keys
+##         this is a hack to ensure trackhubs can attach - needs revisiting    
+   #else {
+      ## Otherwise assembly-only keys for species with no UCSC id configured
+      $lookup->{$assembly} = [$_, $assembly, 0];
+    #}
+##    
+    if ($old_assemblies) {
+      ## Include past UCSC assemblies
+      if ($self->get_config($_, 'UCSC_ASSEMBLIES')) {
+        my %ucsc = @{$self->get_config($_, 'UCSC_ASSEMBLIES')||[]};
+        while (my($k, $v) = each(%ucsc)) {
+          $lookup->{$k} = [$_, $v, 1];
+        }
+      }
+    }
   }
   return $lookup;
 }
