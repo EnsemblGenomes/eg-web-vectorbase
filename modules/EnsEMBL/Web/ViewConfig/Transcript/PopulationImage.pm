@@ -6,19 +6,6 @@ use strict;
 
 use EnsEMBL::Web::Constants;
 
-use previous qw(init);
-
-sub init {
-  my $self = shift;
-  my $summary = $self->get_individual_metadata_summary;
-  my $defaults;
-  
-  $defaults->{"ins_group" . $_->{metadata_keyval_id}} = 'off' for @$summary;
-  
-  $self->PREV::init;
-  $self->set_defaults($defaults);
-}
-
 sub form {
   my $self       = shift;
   my $variations = $self->species_defs->databases->{'DATABASE_VARIATION'};

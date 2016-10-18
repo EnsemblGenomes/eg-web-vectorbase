@@ -22,84 +22,15 @@ package EnsEMBL::Web::ViewConfig;
 
 use strict;
 
-use EnsEMBL::Web::DBSQL::SampleMetaAdaptor;
 use EnsEMBL::Web::Document::Table;
 use URI::Escape;
-
-sub get_individual_metadata_summary {
-  my $self = shift;
-  
-  if (!$self->{_individual_metadata_summary}) {
-    my $sma = EnsEMBL::Web::DBSQL::SampleMetaAdaptor->new($self->hub);
-    $self->{_individual_metadata_summary} = $sma->get_summary($self->hub->species);
-  }
-  
-  return $self->{_individual_metadata_summary};
-}
-
-sub get_metadata_individuals {
-  my ($self, $metadata_keyval_id) = @_;
-  
-  my $sma = EnsEMBL::Web::DBSQL::SampleMetaAdaptor->new($self->hub);     
-  
-  return $sma->get_individuals($self->hub->species, $metadata_keyval_id);
-}
 
 sub add_individual_selector {
   my ($self, $config) = @_;
   my $checkbox_name_template = $config->{checkbox_name_template} || '%s';
   my $checkbox_on_value      = $config->{checkbox_on_value} || 'on';  
   my $hub                    = $self->hub;
-  my $species                = $hub->species;   
-  my $summary                = $self->get_individual_metadata_summary;
   
-  my $meta_table = EnsEMBL::Web::Document::Table->new([], [], { 
-    data_table => 'no_col_toggle',
-    exportable => 0,
-  });
-  
-  $meta_table->code = 'individual_selector_meta';
-  
-  $meta_table->add_columns(   
-    { key => 'biosample_group',  title => 'Group',       width => '10%' },  
-    { key => 'meta_key',         title => 'Property',    width => '20%' },  
-    { key => 'meta_val',         title => 'Value',       width => '40%' },
-    { key => 'sample_count',     title => 'Samples',     width => '10%', sort => 'numeric' },
-    { key => 'individual_count', title => 'Individuals', width => '10%', sort => 'numeric' },
-    { key => 'checkbox',         title => '',            width => '2%'  },  
-  );
-  
-  my %individual_groups;
-      
-  foreach my $row (@$summary) {
-    my $checkbox;
-    
-    if ($row->{individual_count} <= 100) {
-      my $group       = $row->{metadata_keyval_id};
-      my $individuals = $self->get_metadata_individuals($row->{metadata_keyval_id});
-      
-      foreach my $i (@$individuals) {
-        $individual_groups{$i} ||= [];
-        push @{$individual_groups{$i}}, $group;
-      }     
-      
-      $checkbox = sprintf (
-        qq{<input type="checkbox" class="ins_group" name="ins_group_%s" value="on"%s />}, 
-        $group,
-        $self->get("ins_group_$group") eq 'on' ? ' checked' : ''
-      )
-    }
-       
-    $meta_table->add_row({ 
-      biosample_group  => $row->{biosample_group},
-      meta_key         => $row->{meta_key},
-      meta_val         => $row->{meta_val},
-      sample_count     => $row->{sample_count},
-      individual_count => $row->{individual_count},
-      checkbox         => $checkbox || '--',
-    });
-  }
- 
   # Selected individuals
   
   my $variations = $self->species_defs->databases->{'DATABASE_VARIATION'};
@@ -121,12 +52,9 @@ sub add_individual_selector {
 
   foreach my $i (sort @strains) {
     if (!$seen{$i}++) {
-      my $groups      = $individual_groups{$i};
-      my $class       = $groups ? join(' ', map {"ins_group_$_"} @$groups ) : undef;
       
       my $checkbox = sprintf (
-        qq{<input type="checkbox" class="%s" name="%s" value="%s"%s />}, 
-        $class,
+        qq{<input type="checkbox" name="%s" value="%s"%s />}, 
         sprintf( $checkbox_name_template, $i ),
         $checkbox_on_value,
         $self->get($i) eq $checkbox_on_value ? ' checked' : ''
@@ -145,6 +73,7 @@ sub add_individual_selector {
   
   my $referer = $hub->referer;
   my $redirect_url = join '/', $referer->{ENSEMBL_TYPE}, $referer->{ENSEMBL_ACTION}, $referer->{ENSEMBL_FUNCTION};
+  
   $redirect_url =~ s/\/$//; # strip trailing slash
   my $ss_url = sprintf(
     '%s/#?g=%s&t=%s&s=%s&redirect_url=%s', 
@@ -179,19 +108,6 @@ sub add_individual_selector {
         </div>
       },
       $individual_table->render,
-    )
-  });
-  
-  $self->add_fieldset('Sample metadata')->append_child('div', { 
-    inner_HTML => sprintf (
-      qq{
-        <p>Select the groups of samples you wish to view from the list below. You can norrow the list by typing in the filter box. <b>Please note:</b> selecting large numbers of samples may cause this view to become unresponsive - the suggested maximum is 100.</p>
-        <div id="IndividualMetaSelector" class="js_panel">
-          <input type="hidden" class="subpanel_type" value="IndividualMetaSelector" />
-          %s
-        </div>
-      },
-      $meta_table->render,
     )
   });
 }
