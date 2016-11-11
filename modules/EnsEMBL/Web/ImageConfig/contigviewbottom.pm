@@ -4,21 +4,11 @@ package EnsEMBL::Web::ImageConfig::contigviewbottom;
 
 use strict;
 
-use previous qw(init initialize);
+use previous qw(init_cacheable);
 
-sub init {
+sub init_cacheable {
   my $self = shift;
   
-  $self->set_parameters({
-    toolbars        => { top => 1, bottom => 1 },
-    sortable_tracks => 'drag', # allow the user to reorder tracks on the image
-    trackhubs        => 1,      # allow track hubs
-    opt_halfheight  => 0,      # glyphs are half-height [ probably removed when this becomes a track config ]
-    opt_lines       => 1,      # draw registry lines
-  });
-
-  # First add menus in the order you want them for this display
-## VB  
   $self->create_menus(qw(
     sequence
     marker
@@ -77,7 +67,7 @@ sub init {
     information
   ));
 
-  $self->PREV::init(@_);
+  $self->PREV::init_cacheable(@_);
 }
 
 1;
