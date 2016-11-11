@@ -33,7 +33,7 @@ sub content {
   
   my $hub         = $self->hub;
   my $function    = $hub->function;  
-  my $adaptor     = $hub->get_databases('go')->{'go'}->get_OntologyTermAdaptor;
+  my $adaptor     = $hub->get_adaptor('get_OntologyTermAdaptor', 'go');
   my %clusters    = $hub->species_defs->multiX('ONTOLOGIES');
   my $terms_found = 0;
   my $label       = 'Ontology';
@@ -96,7 +96,7 @@ sub biomart_link {
     $term
   );
 
-  my $link = qq{<a rel="notexternal" href="$url">Search Biomart</a>};
+  my $link = qq{<a rel="notexternal" href="$url">Search BioMart</a>};
 
   return $link;
 }
@@ -121,9 +121,8 @@ sub process_data {
     my $hash        = $data->{$go} || {};
     my $go_link     = $hub->get_ExtURL_link($go, $extdb, $go);
     my $mart_link   = $self->biomart_link($go) ? "<li>".$self->biomart_link($go)."</li>": "";
-## EG: Only show the karyotype link for assembled genomes, otherwise this just links to a page with an error
-    my $loc_link    = $chromosomes && scalar @$chromosomes && $hub->species_defs->MAX_CHR_LENGTH ? '<li><a rel="notexternal" href="'.$hub->url({type  => 'Location', action => 'Genome', ftype => 'Gene', id  => $go}).'">View on karyotype</a></li>' : '';
-##
+
+    my $loc_link    = '<li><a rel="notexternal" href="' . $hub->url({type  => 'Location', action => 'Genome', ftype => 'Gene', id  => $go, gotype => $extdb}) . ( $chromosomes && scalar @$chromosomes && $hub->species_defs->MAX_CHR_LENGTH ? '">View on karyotype</a></li>' : '">View associated genes</a></li>' );
 
     my $goslim      = $hash->{'goslim'} || {};
     my $row         = {};
@@ -151,18 +150,18 @@ sub process_data {
       my $url        = $hub->url({
         species     => $species,
         type        => 'Gene',
-        action      => $type eq 'translation' ? 'Ontology' : 'Summary',
+        action      => $type eq 'translation' ? 'Ontologies/'.$hub->function : 'Summary',
         $param_type => $gene,
         __clear     => 1,
       });
-      
+
       $desc = qq{Propagated from $common_name <a href="$url">$gene</a> by orthology};
     }
     
     if($hash->{'term'}) {
       $row->{'go'}               = $go_link;
       $row->{'description'}      = $hash->{'term'};
-      $row->{'evidence'}         = join ', ', map $self->helptip($_, $description_hash->{$_} // 'No description available'), @$go_evidence;  
+      $row->{'evidence'}         = join ', ', map $self->helptip($_, $description_hash->{$_} // 'No description available'), @$go_evidence;
       $row->{'desc'}             = join ', ', grep $_, ($desc, $hash->{'source'});
       $row->{'transcript_id'}    = %all_trans ? join("<br>", map { qq{<a href="$all_trans{$_}">$_</a>} } keys %all_trans) : '<a href="'.$hub->url({type => 'Transcript', action => 'Summary',t => $_,}).'">'.$hash->{transcript_id}.'</a>';
       $row->{'extra_link'}       = $mart_link || $loc_link ? qq{<ul class="compact">$mart_link$loc_link</ul>} : "";

@@ -8,11 +8,9 @@ package EnsEMBL::Web::Document::HTML::WhatsNew;
 use strict;
 use warnings;
 
-use EnsEMBL::Web::Hub;
-
 sub render {
   my $self = shift;
-  my $hub = new EnsEMBL::Web::Hub;
+  my $hub = $self->hub;
 
   my $species_defs = $hub->species_defs;
 
