@@ -6,7 +6,11 @@ use strict;
 
 use EnsEMBL::Web::Constants;
 
-sub form {
+sub form_fields {
+  return {};
+}
+
+sub init_form_non_cacheable {
   my $self       = shift;
   my $sp         = $self->species;
   my $variations = $self->species_defs->databases->{'DATABASE_VARIATION'} || {};
