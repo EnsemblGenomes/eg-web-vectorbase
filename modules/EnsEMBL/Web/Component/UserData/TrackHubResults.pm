@@ -19,6 +19,8 @@ limitations under the License.
 
 package EnsEMBL::Web::Component::UserData::TrackHubResults;
 
+## VB-5809 - back-porting TH fixes that went into E87 - can remove these for January release
+
 ### Display the results of the track hub registry search
 
 use strict;
@@ -28,7 +30,7 @@ no warnings "uninitialized";
 use POSIX qw(ceil);
 
 use EnsEMBL::Web::REST;
-use EnsEMBL::Web::Command::UserData;
+use EnsEMBL::Web::Utils::UserData qw(check_attachment);
 
 use base qw(EnsEMBL::Web::Component::UserData);
 
@@ -43,41 +45,6 @@ sub caption {
   return 'Choose a Track Hub';
 }
 
-## EG: ENSEMBL-4624
-my $assembly_name_mapping = {
-  "Aedes aegypti"       =>  {  "AaegL3"  =>  "AaegL1"  },
-  "Anopheles albimanus" =>  {  "AalbS1"  =>  "Anop_albi_ALBI9_A_V1"  },
-  "Aedes albopictus"    =>  {  "AaloF1"  =>  "A.albopictus_v1.0"  },
-  "Anopheles arabiensis"        =>  {  "AaraD1"  =>  "Anop_arab_DONG5_A_V1"  },
-  "Anopheles atroparvus"        =>  {  "AatrE1"  =>  "Anop_atro_EBRO_V1"  },
-  "Anopheles culicifacies"      =>  {  "AculA1"  =>  "Anop_culi_species_A-37_1_V1"  },
-  "Anopheles dirus"     =>  {  "AdirW1"  =>  "Anop_diru_WRAIR2_V1"  },
-  "Anopheles epiroticus"        =>  {  "AepiE1"  =>  "Anop_epir_epiroticus2_V1"  },
-  "Anopheles farauti"   =>  {  "AfarF2"  =>  "Anop_fara_FAR1_V2"  },
-  "Anopheles funestus"  =>  {  "AfunF1"  =>  "Anop_fune_FUMOZ_V1"  },
-  "Anopheles gambiae"   =>  {  "AgamP4"  =>  "AgamP3"  },
-  "Anopheles merus"     =>  {  "AmerM2"  =>  "Anop_meru_MAF_V1"  },
-  "Anopheles minimus"   =>  {  "AminM1"  =>  "Anop_mini_MINIMUS1_V1"  },
-  "Anopheles quadriannulatus"   =>  {  "AquaS1"  =>  "Anop_quad_QUAD4_A_V1"  },
-  "Anopheles sinensis"  =>  {  "AsinS2"  =>  "Anop_sine_SINENSIS_V1"  },
-  "Anopheles stephensi" =>  {  "AsteS1"  =>  "Anop_step_SDA-500_V1"  },
-  "Anopheles stephensiI" =>  {  "AsteI2"  =>  "ASM30077v2" },                               
-  "Biomphalaria glabrata"       =>  {  "BglaB1"  =>  "ASM45736v1"  },
-  "Culex quinquefasciatus"      =>  {  "CpipJ2"  =>  "CulPip1.0"  },
-  "Glossina austeni"    =>  {  "GausT1"  =>  "Glossina_austeni-1.0.3"  },
-  "Glossina brevipalpis"        =>  {  "GbreI1"  =>  "Glossina_brevipalpis_1.0.3"  },
-  "Glossina fuscipes"  =>  {  "GfusI1"  =>  "Glossina_fuscipes-3.0.2"  },
-  "Glossina pallidipes" =>  {  "GpalI1"  =>  "Glossina_pallidipes-1.0.3"  },
-  "Glossina palpalis"        =>  {  "GpapI1"  =>  "Glossina_palpalis_gambiensis-2.0.1"  },
-  "Ixodes scapularis"   =>  {  "IscaW1"  =>  "JCVI_ISG_i3_1.0"  },
-  "Lutzomyia longipalpis"       =>  {  "LlonJ1"  =>  "Llon_1.0"  },
-  "Musca domestica"     =>  {  "MdomA1"  =>  "Musca_domestica-2.0.2"  },
-  "Phlebotomus papatasi"        =>  {  "PpapI1"  =>  "Ppap_1.0"  },
-  "Rhodnius prolixus"   =>  {  "RproC3"  =>  "Rhodnius_prolixus-3.0.3"  },
-  "Stomoxys calcitrans" =>  {  "ScalU1"  =>  "Stomoxys_calcitrans-1.0.1"  }
-};
-## EG: the end.
-
 sub content {
   my $self            = shift;
   my $hub             = $self->hub;
@@ -85,66 +52,12 @@ sub content {
   my $registry        = $sd->TRACKHUB_REGISTRY_URL;
   my $html;
 
-  ## REST call
-  my $rest = EnsEMBL::Web::REST->new($hub, $registry);
-  return unless $rest;
-
-  my $post_content = {};
-  my @query_params = qw(assembly query);
-  foreach (@query_params) {
-    $post_content->{$_} = $hub->param($_) if $hub->param($_);
-  }
-  ## We have to rename this param within the webcode as it
-  ## conflicts with one of ours
-  $post_content->{'type'} = $hub->param('data_type');
-
-  ## Registry uses species names without spaces
-  my $search_species = $hub->param('species') || $hub->param('search_species');
-  if ($search_species) {
-    (my $species = $search_species) =~ s/_/ /;
-    $post_content->{'species'} = $species;
-  }
-
-  ## Filter on current assembly
-  if ($post_content->{'species'} && !$post_content->{'assembly'}) {
-    ## Give preference to the GCA accession id, as it is unique
-    #my $assembly = $sd->get_config($hub->param('species'), 'ASSEMBLY_ACCESSION') 
-    #                || $sd->get_config($hub->param('species'), 'ASSEMBLY_VERSION');
-    ## FIXME: DON'T USE GCA ACCESSION, AS IT'S PATCH-SPECIFIC IN SOME SPECIES
-    ## WHICH MEANS THE SEARCH MAY PRODUCE NO RESULTS 
-    $post_content->{'assembly'} = $sd->get_config($hub->param('species'), 'ASSEMBLY_VERSION');
-  }
-
-  ## EG: ENSEMBL-4624
-  ## Temporary solution to return track hub from registry for those assemblies whose name
-  ## in core db (VB assembly name) is different from the one on registry (ENA assembly alias).
-  ## The track hub registry rest api should support search through assembly synonyms.
-  if ($post_content->{'species'} && $post_content->{'assembly'}) {
-    my $this_species = $post_content->{'species'};
-    my $the_assemblies = $assembly_name_mapping->{$this_species};
-    if ( $the_assemblies ) {
-      my $this_assembly = $post_content->{'assembly'};
-      if ( $the_assemblies->{$this_assembly} ) {
-        $post_content->{'assembly'} = $the_assemblies->{$this_assembly};
-      }
-    }
-## VB
-    # we don;t have reliable species name mappings for THR so better to rely on assembly alone
-    delete $post_content->{'species'};
-##
-  }
-  ## EG: the end.
-
   ## Pagination
   my $entries_per_page  = 5;
   my $current_page      = $hub->param('page') || 1;
-
-  my $endpoint = 'api/search';
-
-  my $args = {'method' => 'post', 'content' => $post_content, 
-              'url_params' => {'page' => $current_page, 'entries_per_page' => $entries_per_page}};
+  my $url_params = {'page' => $current_page, 'entries_per_page' => $entries_per_page};
   
-  my ($result, $error) = $rest->fetch($endpoint, $args);
+  my ($result, $post_content, $error) = $self->object->thr_search($url_params);
 
   if ($error) {
     $html = '<p>Sorry, we are unable to fetch data from the Track Hub Registry at the moment</p>';
@@ -158,34 +71,51 @@ sub content {
                                 'data_type' => $hub->param('data_type') || '',
                                 'query'     => $hub->param('query') || '',
                                 });
-    $html .= sprintf('<p>Found %s track hub%s for this assembly - <a href="%s" class="modal_link">Search again</a></p>', $count, $plural, $search_url);
-    my $registry = $hub->species_defs->TRACKHUB_REGISTRY_URL; 
 
+    $html .= '<div class="column-wrapper">';
+
+    ## Sidebar box with helpful hints
+    my $registry = $hub->species_defs->TRACKHUB_REGISTRY_URL; 
     my $link = $hub->url({'type' => 'UserData', 'action' => 'SelectFile'});
-    $html .= $self->info_panel("Can't see the track hub you're interested in?", qq(<p>We only search for hubs compatible with assemblies used on this website - please <a href="$registry" rel="external">search the registry directly</a> for data on other assemblies.</p><p>Alternatively, you can <a href="$link" class="modal_link">manually attach any hub</a> for which you know the URL.</p>));
+    $html .= $self->sidebar_panel("Can't see the track hub you're interested in?", qq(<p>We only search for hubs compatible with assemblies used on this website - please <a href="$registry" rel="external">search the registry directly</a> for data on other assemblies.</p><p>Alternatively, you can <a href="$link" class="modal_link">manually attach any hub</a> for which you know the URL.</p>));
+
+    ## Reminder of search terms
+    $html .= sprintf '<p><b>Searched %s %s', $hub->param('common_name'), $hub->param('assembly_display');
+    my @search_extras;
+    if ($post_content->{'type'}) {
+      push @search_extras, '"'.ucfirst($post_content->{'type'}).'"';
+    }
+    if ($post_content->{'query'}) {
+      push @search_extras, '"'.$post_content->{'query'}.'"';
+    }
+    if (@search_extras) {
+      $html .= ' for '.join(' AND ', @search_extras);
+    }
+    $html .= '</b></p>';
+    $html .= sprintf('<p>Found %s track hub%s - <a href="%s" class="modal_link">Search again</a></p>', $count, $plural, $search_url);
+    $html .= '</div>';
 
     if ($count > 0) {
 
+      my $pagination;
       my $pagination_params = {
                                 'current_page'      => $current_page,
                                 'total_entries'     => $count,
                                 'entries_per_page'  => $entries_per_page,
                                 'url_params'        => $post_content
                               };
-      ## We want to pass the underscored version in the URL
-      delete $pagination_params->{'url_params'}{'species'};
-      $pagination_params->{'url_params'}{'search_species'} = $search_species;
 
+      ## Generate the HTML once, because we delete parameters when creating it
       if ($count > $entries_per_page) {
-        $html .= $self->_show_pagination($pagination_params);
+        $pagination = $self->_pagination($pagination_params);
+        $html .= $pagination;
       }
 
       foreach (@{$result->{'items'}}) {
-## VB
-        my $species = $hub->species;
-##
+        (my $species = $_->{'species'}{'scientific_name'}) =~ s/ /_/;
+
         ## Is this hub already attached?
-        my ($ignore, $params) = EnsEMBL::Web::Command::UserData::check_attachment($self, $_->{'hub'}{'url'});
+        my ($ignore, $params) = check_attachment($hub, $_->{'hub'}{'url'});
         my $button;
         if ($params->{'reattach'}) {
           my $label;
@@ -233,7 +163,7 @@ sub content {
       }
       
       if ($count > $entries_per_page) {
-        $html .= $self->_show_pagination($pagination_params);
+        $html .= $pagination;
       }
 
     }
@@ -242,15 +172,28 @@ sub content {
 
 }
 
-1;
-
-
-sub _show_pagination {
+sub _pagination {
   my ($self, $args) = @_;
 
   my $no_of_pages = ceil($args->{'total_entries'}/$args->{'entries_per_page'});
 
   my $html = '<div class="list_paginate">Page: <span class="page_button_frame">';
+  
+  ## Set parameters that don't change 
+  my ($key, $assembly);
+  foreach ('assembly', 'accession') {
+    if ($args->{'url_params'}{$_}) {
+      $key = $_;
+      $assembly = $args->{'url_params'}{$_};
+    }
+    delete $args->{'url_params'}{$_};
+  }
+  $args->{'url_params'}{'assembly_key'} = $key;
+  $args->{'url_params'}{'assembly_id'}  = $assembly;
+  ## Change type parameter back to something safe before using
+  $args->{'url_params'}{'data_type'} = $args->{'url_params'}{'type'};
+  delete $args->{'url_params'}{'type'};
+
   for (my $page = 1; $page <= $no_of_pages; $page++) {
     my ($classes, $link);
     if ($page == $args->{'current_page'}) {
@@ -268,9 +211,6 @@ sub _show_pagination {
     }
     if ($link) {
       $args->{'url_params'}{'page'} = $page;
-      ## Change type parameter back to something safe before using
-      $args->{'url_params'}{'data_type'} = $args->{'url_params'}{'type'};
-      delete $args->{'url_params'}{'type'};
       my $url = $self->hub->url($args->{'url_params'});
       $html .= sprintf '<div class="%s"><a href="%s" class="modal_link nodeco">%s</a></div>', $classes, $url, $page;
     }
