@@ -44,11 +44,11 @@ sub thr_search {
 
   my ($result, $error);
   my $endpoint = 'api/search';
-  my $post_content = {'query' => $hub->param('query'), 'species' => $hub->param('species')};
+  my $post_content = {'query' => $hub->param('query')};
 
-  ## We have to rename this param within the webcode as it
-  ## conflicts with one of ours
-  $post_content->{'type'} = $hub->param('data_type');
+  ## We have to rename these params within the webcode as they conflict with ours
+  $post_content->{'type'}     = $hub->param('data_type');
+  $post_content->{'species'}  = $hub->param('thr_species');
 
   ## Search by either assembly or accession, depending on config
   my $key = $hub->param('assembly_key');
@@ -58,8 +58,7 @@ sub thr_search {
   my $args = {'method' => 'post', 'content' => $post_content};
   $args->{'url_params'} = $url_params if $url_params;
 
-  my ($result, $error) =  $rest->fetch($endpoint, $args);
-  return ($result, $post_content, $error);
+  return $rest->fetch($endpoint, $args);
 }
 
 sub thr_ok_species {
