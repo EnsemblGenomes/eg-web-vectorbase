@@ -76,10 +76,11 @@ sub add_individual_selector {
   
   $redirect_url =~ s/\/$//; # strip trailing slash
   my $ss_url = sprintf(
-    '%s/#?g=%s&t=%s&s=%s&redirect_url=%s&tags=true:::has_genotypes', 
+    '%s/#?g=%s&t=%s&r=%s&s=%s&redirect_url=%s&tags=true:::has_genotypes', 
     $SiteDefs::VECTORBASE_SAMPLE_SEARCH_URL,
     $referer->{params}->{g}->[0] || '', 
     $referer->{params}->{t}->[0] || '',
+    $referer->{params}->{r}->[0] || '',
     $hub->species, 
     uri_escape($redirect_url), 
   );
