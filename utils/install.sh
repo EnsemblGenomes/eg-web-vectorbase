@@ -10,7 +10,6 @@
 
 ENSEMBL_BRANCH=$1
 EG_BRANCH=$2
-EBI=$3
 
 echo ">> Clone Ensembl repos on branch ${ENSEMBL_BRANCH}..."
 
@@ -34,10 +33,9 @@ echo ">> Make logs dir..."
 
 mkdir -pv logs
 
-echo ">> Clone EBI plugins..."
-
-if [ $EBI ] 
+if [[ "$HOSTNAME" =~ "ebi" ]]
   then
+    echo ">> Clone EBI plugins..."
     git clone git@github.com:EnsemblGenomes/eg-web-ensembl-configs.git
     cp -rv eg-web-ensembl-configs/my-plugins .
 fi 
