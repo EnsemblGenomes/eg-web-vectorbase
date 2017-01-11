@@ -13,19 +13,19 @@ my $common = [
 
 $SiteDefs::ENSEMBL_AUTOPLUGINS = {
 
-  "unix:gunpowder" => [
+  "ebi" => [
     'MyPlugins'         => $BASE.'/my-plugins',
     'VB::Hinxton::Prod' => $BASE.'/eg-web-ensembl-configs/vb-hx-prod',         
     'EBI::Hinxton'      => $BASE.'/eg-web-ensembl-configs/eg-hx',    
     @$common,
   ],
 
-  "unix:fry" => [
+  "fry" => [
     'ND::Pre'  => $BASE.'/eg-web-vectorbase/conf-plugins/nd-pre',
     @$common,
   ],
 
-  "unix:edward" => [
+  "edward" => [
     'ND::Live' => $BASE.'/eg-web-vectorbase/conf-plugins/nd-live',
     @$common,
   ],
