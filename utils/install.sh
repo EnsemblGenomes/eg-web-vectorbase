@@ -2,7 +2,7 @@
 
 # Default setup of VB codebase
 # exmaple:
-#  eg-web-vectorbase/install/default.sh release/87 release/eg/35
+#  eg-web-vectorbase/utils/install.sh release/87 release/eg/35
 #
 # This script requires Ensembl Git Tools to be installed
 # see https://github.com/Ensembl/ensembl-git-tools/
@@ -27,16 +27,17 @@ git-ensembl --branch ${EG_BRANCH} --clone ensemblgenomes-api
 
 echo ">> Copy configs..."
 
-cp -rv eg-web-vectorbase/"install"/default/my-plugins .
-cp -v  eg-web-vectorbase/"install"/default/conf/* ensembl-webcode/conf/
+cp -v  eg-web-vectorbase/conf/httpd.conf ensembl-webcode/conf/
+cp -v  eg-web-vectorbase/conf/Auto*      ensembl-webcode/conf/
 
 echo ">> Make logs dir..."
 
 mkdir -pv logs
 
-echo ">> Clone EBI config plugins..."
+echo ">> Clone EBI plugins..."
 
 if [ $EBI ] 
   then
     git clone git@github.com:EnsemblGenomes/eg-web-ensembl-configs.git
+    cp -rv eg-web-ensembl-configs/my-plugins .
 fi 

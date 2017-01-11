@@ -1,14 +1,6 @@
-use strict;
 my $BASE = $SiteDefs::ENSEMBL_SERVERROOT;
 
-$SiteDefs::ENSEMBL_PLUGINS = [
-  'MyPlugins'               => $BASE.'/my-plugins',
-  
-  # Plugins for EBI development environment
-  #'VB::Hinxton::ArchiveProd' => $BASE.'/eg-web-ensembl-configs/vb-hx-archive-prod', 
-  #'VB::Hinxton::Prod'        => $BASE.'/eg-web-ensembl-configs/vb-hx-prod',         
-  #'EBI::Hinxton'             => $BASE.'/eg-web-ensembl-configs/eg-hx',              
-  
+my $common = [
   'EG::Vectorbase'          => $BASE.'/eg-web-vectorbase',
   'EG::Common'              => $BASE.'/eg-web-common',
   'EnsEMBL::Genoverse'      => $BASE.'/public-plugins/genoverse',
@@ -18,5 +10,26 @@ $SiteDefs::ENSEMBL_PLUGINS = [
   'EnsEMBL::Memcached'      => $BASE.'/public-plugins/memcached',
   'EnsEMBL::Docs'           => $BASE.'/public-plugins/docs',
 ];
+
+$SiteDefs::ENSEMBL_AUTOPLUGINS = {
+
+  "unix:gunpowder" => [
+    'MyPlugins'         => $BASE.'/my-plugins',
+    'VB::Hinxton::Prod' => $BASE.'/eg-web-ensembl-configs/vb-hx-prod',         
+    'EBI::Hinxton'      => $BASE.'/eg-web-ensembl-configs/eg-hx',    
+    @$common,
+  ],
+
+  "unix:fry" => [
+    'ND::Pre'  => $BASE.'/eg-web-vectorbase/conf-plugins/nd-pre',
+    @$common,
+  ],
+
+  "unix:edward" => [
+    'ND::Live' => $BASE.'/eg-web-vectorbase/conf-plugins/nd-live',
+    @$common,
+  ],
+
+};
 
 1;

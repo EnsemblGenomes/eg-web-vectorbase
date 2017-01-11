@@ -4,16 +4,6 @@ use Sys::Hostname;
 
 sub update_conf {
 
-  if (hostname() =~  /fry/) {
-    $SiteDefs::ENSEMBL_SERVERNAME  = 'pre.vectorbase.org';
-    $SiteDefs::ENSEMBL_BASE_URL    = 'https://pre.vectorbase.org';
-    $SiteDefs::VECTORBASE_BASE_URL = 'https://pre.vectorbase.org';
-  } else {
-    $SiteDefs::ENSEMBL_SERVERNAME  = 'www.vectorbase.org';
-    $SiteDefs::ENSEMBL_BASE_URL    = 'https://www.vectorbase.org';
-    $SiteDefs::VECTORBASE_BASE_URL = 'https://www.vectorbase.org';
-  }
-
   $SiteDefs::SITE_RELEASE_VERSION = '1702';
   $SiteDefs::SITE_RELEASE_DATE    = 'February 2017';
   $SiteDefs::VECTORBASE_VERSION   = 'VB-2017-02';
