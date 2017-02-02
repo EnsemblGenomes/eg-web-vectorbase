@@ -13,8 +13,11 @@ my $common = [
 
 $SiteDefs::ENSEMBL_AUTOPLUGINS = {
 
-  "ebi" => [
+  "1!gunpowder" => [
     'MyPlugins'         => $BASE.'/my-plugins',
+  ],
+
+  "2!ebi" => [
     'VB::Hinxton::Prod' => $BASE.'/eg-web-ensembl-configs/vb-hx-prod',         
     'EBI::Hinxton'      => $BASE.'/eg-web-ensembl-configs/eg-hx',    
     @$common,
