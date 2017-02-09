@@ -1,4 +1,4 @@
-package EnsEMBL::Web::Component::Gene::PubMed;
+package EnsEMBL::Web::Component::Gene::Literature;
 use strict;
 use base qw(EnsEMBL::Web::Component::Gene);
 use Data::Dumper;

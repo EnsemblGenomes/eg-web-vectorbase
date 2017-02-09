@@ -15,7 +15,7 @@ sub modify_tree {
   my $object = $self->object;
 
   # delete unwanted nodes
-  $self->delete_node($_) for (qw(Alleles SecondaryStructure Gene_families ExpressionAtlas PanCompara Regulation));
+  $self->delete_node($_) for (qw(Alleles Gene_families ExpressionAtlas PanCompara Regulation));
 
   if ($object) {
     # add expression node
