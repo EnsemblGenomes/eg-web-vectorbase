@@ -79,6 +79,7 @@ sub update_conf {
   $SiteDefs::VECTORBASE_SEARCH_SITE        = $SiteDefs::ENSEMBL_BASE_URL;
   $SiteDefs::VECTORBASE_EXPRESSION_BROWSER = $SiteDefs::ENSEMBL_BASE_URL . '/expression-browser';
   $SiteDefs::VECTORBASE_SAMPLE_SEARCH_URL  = $SiteDefs::ENSEMBL_BASE_URL . '/popbio/sample-explorer';
+  $SiteDefs::VECTORBASE_SAMPLE_SEARCH_URL  = 'http://gunpowder.ebi.ac.uk:10971/popbio/sample-explorer';
   #$SiteDefs::VECTORBASE_SAMPLE_SEARCH_URL   = 'http://gunpowder.ebi.ac.uk:10971';
   
   $SiteDefs::ENSEMBL_LOGINS = 0;
@@ -89,7 +90,7 @@ sub update_conf {
   # Assembly converter
   $SiteDefs::ENSEMBL_AC_ENABLED          = 1;
   $SiteDefs::ASSEMBLY_CONVERTER_BIN_PATH = '/nfs/public/rw/ensembl/python/bin/CrossMap.py';
-  $SiteDefs::ENSEMBL_CHAIN_FILE_DIR      = sprintf '/vectorbase/data/%s/assembly_converter', $SiteDefs::VECTORBASE_VERSION;
+  $SiteDefs::ENSEMBL_CHAIN_FILE_DIR      = '/vectorbase/data/assembly_converter';
   
   # VEP    
   $SiteDefs::ENSEMBL_VEP_ENABLED   = 1;
