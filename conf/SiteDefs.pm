@@ -14,6 +14,7 @@ sub update_conf {
   $SiteDefs::SAMTOOLS_DIR = '/nfs/public/rw/ensembl/samtools';
   $SiteDefs::MWIGGLE_DIR  = '/nfs/public/rw/ensembl/tools/mwiggle/';
   $SiteDefs::HTSLIB_DIR   = '/nfs/public/rw/ensembl/tools/htslib/';
+  $SiteDefs::R2R_BIN      = '/nfs/public/rw/ensembl/tools/R2R-1.0.5/src/r2r';
   
   $SiteDefs::ENSEMBL_PRIMARY_SPECIES   = 'Anopheles_gambiae';
   $SiteDefs::ENSEMBL_SECONDARY_SPECIES ='Aedes_aegypti';
