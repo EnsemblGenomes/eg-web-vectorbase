@@ -102,10 +102,10 @@ sub update_conf {
     '-user' => 'ensro',
   };
   $SiteDefs::ENSEMBL_VEP_SCRIPT_DEFAULT_OPTIONS = {
-    '--host' => 'localhost',
-    '--port' => '3306',
-    '--user' => 'ensro',
-    '--fork' => 4,
+    'host' => 'localhost',
+    'port' => '3306',
+    'user' => 'ensro',
+    'fork' => 4,
   };
 }
 
