@@ -45,9 +45,7 @@ sub content {
 ## VB
   my @names = map {$_->{'Name'}} values %sample_data;
   
-  my $variation_db_adaptor = $hub->database('variation');
-
-  my $sample_st = $variation_db_adaptor->prepare(
+  my $samples = $hub->database('variation')->dbc->db_handle->selectall_arrayref(
     "SELECT i.name, iss.name FROM individual i, individual_synonym iss, source s
      WHERE i.individual_id = iss.individual_id
      AND s.source_id = iss.source_id
@@ -55,9 +53,7 @@ sub content {
      AND i.name IN ('" . join("', '", @names) . "')"
   );
 
-  $sample_st->execute;  
-
-  my %sample_name = map { $_->[0] => $_->[1] } @{$sample_st->fetchall_arrayref};
+  my %sample_name = map { $_->[0] => $_->[1] } @$samples;
 ##
   foreach my $sample_id (sort { $sample_data{$a}{'Name'} cmp $sample_data{$b}{'Name'} } keys %sample_data) {
     my $data     = $sample_data{$sample_id};
