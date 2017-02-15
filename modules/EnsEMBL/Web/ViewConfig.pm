@@ -25,6 +25,37 @@ use strict;
 use EnsEMBL::Web::Document::Table;
 use URI::Escape;
 
+sub update_from_input {
+  ## Abstract method implementation
+  my ($self, $params) = @_;
+
+  # if user is resetting the configs
+  if (my $reset = $params->{'reset'}) {
+
+    $self->altered($self->reset_user_settings($reset));
+  }
+## VB allow reset AND configure in single request
+  #} else {
+
+    my $settings = $params->{$self->config_type};
+
+    foreach my $key (grep exists $self->{'options'}{$_}, keys %$settings) {
+
+      my @values = ref $settings->{$key} eq 'ARRAY' ? @{$settings->{$key}} : ($settings->{$key});
+      $self->altered($key) if $self->set_user_setting($key, @values > 1 ? \@values : $values[0]);
+    }
+  #}
+## 
+
+  # now apply config changes to linked image config
+  my $image_config = $self->image_config;
+  $self->altered('image_config') if $image_config && $image_config->update_from_input($params);
+
+  $self->save_user_settings if $self->is_altered; # update the record table
+
+  return $self->is_altered;
+}
+
 sub add_individual_selector {
   my ($self, $config) = @_;
   my $checkbox_name_template = $config->{checkbox_name_template} || '%s';
