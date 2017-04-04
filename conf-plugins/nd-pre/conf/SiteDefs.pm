@@ -8,6 +8,7 @@ sub update_conf {
   $SiteDefs::ENSEMBL_BASE_URL    = 'https://pre.vectorbase.org';
   $SiteDefs::VECTORBASE_BASE_URL = 'https://pre.vectorbase.org';
 
+  $SiteDefs::ENSEMBL_PROXY_PORT = 80;
 }
 
 1;
