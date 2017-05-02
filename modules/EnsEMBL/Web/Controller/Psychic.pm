@@ -32,7 +32,7 @@ sub psychic {
   return $hub->redirect("http://www.ensemblgenomes.org/search?site=ensembl&q=$query&site=&x=0&y=0&genomic_unit=all") if $dest_site eq 'ensembl_genomes';
 
 ## VB 
-  my $vb_url = '/search/site/' . uri_escape($query);
+  my $vb_url = '/search/site/' . uri_escape(uri_escape($query));
   if ($species) {
     my $sp = $species_defs->get_config($species, 'SPECIES_SCIENTIFIC_NAME');
     $vb_url .= '?species_category=' . uri_escape(qq{"$sp"});
