@@ -8,6 +8,21 @@
   height: 118px;
 }
 
+#masthead.bar_only {
+  height: 138px;
+}
+
+#masthead.bar_and_tabs {
+  height: 158px;
+}
+
+#masthead div.spbar_holder {
+  top: 104px;
+}
+#masthead div.spbar_holder .header img { 
+  border-color: rgba(0, 0, 0, 0.4) 
+}
+
 #masthead div {
   background-color: transparent;
 }
