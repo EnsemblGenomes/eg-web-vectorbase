@@ -21,7 +21,6 @@ sub modify_tree {
     # add expression node
     my $expression_node = $self->create_node('GeneExpressionReporters', 'Expression report', [], 
       { 
-        'availability' => 'gene has_expression', 
         'url' => $SiteDefs::VECTORBASE_EXPRESSION_BROWSER . "/gene/" . $object->param('g'), 
         'raw' => 1 
       }
