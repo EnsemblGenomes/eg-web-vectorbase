@@ -34,16 +34,16 @@ sub update_conf {
     Anopheles_farauti
     Anopheles_funestus
     Anopheles_gambiae
-    Anopheles_gambiaeS
+    Anopheles_gambiae_pimperena
     Anopheles_maculatus
     Anopheles_melas
     Anopheles_merus
     Anopheles_minimus
     Anopheles_quadriannulatus
     Anopheles_sinensis
-    Anopheles_sinensisC
+    Anopheles_sinensis_china
     Anopheles_stephensi
-    Anopheles_stephensiI
+    Anopheles_stephensi_indian
     Biomphalaria_glabrata
     Cimex_lectularius
     Culex_quinquefasciatus
