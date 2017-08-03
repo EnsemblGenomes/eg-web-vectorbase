@@ -1,0 +1,26 @@
+#!/usr/bin/perl -w
+use strict;
+use warnings;
+use Getopt::Long;
+
+my ($host, $port, $user, $pass, $skip) = ('localhost', '3306', 'ensrw', undef, undef);
+GetOptions ("host=s" => \$host, "port=s" => \$port, "user=s" => \$user, 'pass=s' => \$pass, 'skip' => \$skip);
+
+my $regex = $ARGV[0];
+die "Please supply regex\n" unless $regex;
+
+opendir(DEV, './') or die $!;
+
+while (my $filename = readdir(DEV)) {
+  next unless (-f "./$filename");
+  next if ($filename !~ m/$regex/);
+  (my $db_and_table = $filename) =~ s/(\.sql?)\.gz$//;
+  my ($db_name, $table_name) = split(/\./, $db_and_table);
+
+  my $cmd = "zcat $filename | mysql --host $host --port $port --user $user -p$pass  $db_name";
+  print "$cmd\n";
+  print `$cmd`;
+}
+
+print "done\n";
+

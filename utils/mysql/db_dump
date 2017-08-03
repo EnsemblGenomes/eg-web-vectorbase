@@ -1,0 +1,26 @@
+#!/usr/bin/perl -w
+use strict;
+use warnings;
+use DBI;
+use Getopt::Long;
+
+my ($host, $port, $user, $like) = ('localhost', '3306', 'ensro', undef);
+GetOptions ("host=s" => \$host, "port=s" => \$port, "user=s" => \$user);
+
+my $regex = $ARGV[0];
+die "please supply regex" unless $regex;
+
+my $dbh = DBI->connect("dbi:mysql:test:$host:$port", $user);
+my @dbs = @{$dbh->selectcol_arrayref(qq/SHOW databases/)};
+@dbs = grep {$_ =~ /$regex/i} @dbs;
+
+print join("\n  ", 'Found:', @dbs) . "\n\n"; 
+
+foreach my $db (@dbs) {
+  my $cmd = "mysqldump --skip-add-locks --quick --host $host --port $port --user $user $db | gzip -c > $db.sql.gz";
+  print "$cmd\n";
+  `$cmd`;
+}
+
+print "done\n";
+

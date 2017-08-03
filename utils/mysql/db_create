@@ -1,0 +1,38 @@
+#!/usr/bin/perl -w
+use strict;
+use warnings;
+use Getopt::Long;
+
+my ($host, $port, $user, $pass, $skip) = ('localhost', '3306', 'ensrw', undef, undef);
+GetOptions ("host=s" => \$host, "port=s" => \$port, "user=s" => \$user, 'pass=s' => \$pass, 'skip' => \$skip);
+
+my $regex = $ARGV[0];
+die "Please supply regex\n" unless $regex;
+
+opendir(DEV, './') or die $!;
+
+while (my $filename = readdir(DEV)) {
+  next unless (-f "./$filename");
+  next if ($filename !~ m/$regex/);
+  (my $dbname = $filename) =~ s/(\.sql?)\.gz$//;
+  
+  my $cmd = "mysqladmin --host $host --port $port --user $user -p$pass create $dbname";
+  #print "$cmd\n";
+  
+  my $output = `$cmd 2>&1`;
+  warn $output if $output;
+  
+  if ($skip and $output =~ /failed/) {
+    warn "Exists, skipping.\n";
+    next;
+  }
+  
+  `$cmd`;
+  
+  $cmd = "zcat $filename | mysql --host $host --port $port --user $user -p$pass  $dbname";
+  print "$cmd\n";
+  `$cmd`;
+}
+
+print "done\n";
+

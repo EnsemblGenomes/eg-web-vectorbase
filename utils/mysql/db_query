@@ -1,0 +1,26 @@
+#!/usr/bin/perl -w
+use strict;
+use warnings;
+use DBI;
+use Getopt::Long;
+
+my ($host, $port, $user, $pass) = ('localhost', '3306', 'ensro', undef);
+GetOptions ("host=s" => \$host, "port=s" => \$port, "user=s" => \$user, "pass=s" => \$pass);
+
+my $regex = $ARGV[0];
+my $query = $ARGV[1];
+die "Please supply regex and query\n" unless $regex and $query;
+
+my $dbh = DBI->connect("dbi:mysql:test:$host:$port", $user, $pass);
+my @dbs = @{$dbh->selectcol_arrayref(qq/SHOW databases/)};
+@dbs = grep {$_ =~ /$regex/i} @dbs;
+
+print join("\n  ", 'Found:', @dbs) . "\n\n"; 
+
+foreach my $db (@dbs) {
+  my $cmd = "mysql --host $host --port $port --user $user -p$pass -e '$query' $db";
+  print "$cmd\n";
+  `$cmd`;
+}
+
+print "done\n";

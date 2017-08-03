@@ -1,0 +1,27 @@
+#!/usr/bin/perl -w
+use strict;
+use warnings;
+use DBI;
+use Getopt::Long;
+
+my ($host, $port, $user, $pass, $like) = ('localhost', '3306', 'ensro', undef, undef);
+GetOptions ("host=s" => \$host, "port=s" => \$port, "user=s" => \$user, "pass=s" => \$pass,  'like=s' => \$like);
+die "please supply --like" unless $like;
+
+my $dbh = DBI->connect("dbi:mysql:test:$host:$port", $user, $pass);
+my @dbs = @{$dbh->selectcol_arrayref(qq/SHOW databases WHERE `database` LIKE '$like'/)};
+
+print join("\n  ", 'Found:', @dbs) . "\n\n";
+
+print "Are you sure you want to drop these databases (y/n)?";
+my $response =  <STDIN>;
+chomp ($response);
+exit unless lc($response) eq 'y';
+
+foreach my $db (@dbs) {
+  print "DROP DATABASE $db\n";
+  $dbh->do("DROP DATABASE $db");
+}
+print "done\n";
+
+
