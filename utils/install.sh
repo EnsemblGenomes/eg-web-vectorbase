@@ -39,3 +39,6 @@ if [[ "$HOSTNAME" =~ "ebi" ]]
     git clone git@github.com:EnsemblGenomes/eg-web-ensembl-configs.git
     cp -rv eg-web-ensembl-configs/my-plugins .
 fi 
+
+echo ">> Linking VCF configs..."
+ln -s /vectorbase/ebi/config/charlie/vcf_json eg-web-vectorbase/conf/json
