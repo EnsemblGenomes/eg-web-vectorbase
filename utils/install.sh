@@ -42,3 +42,6 @@ fi
 
 echo ">> Linking VCF configs..."
 ln -s /vectorbase/ebi/config/charlie/vcf_json eg-web-vectorbase/conf/json
+
+echo ">> Creating symlinks to species icons. See VB-6568"
+cd eg-web-vectorbase/htdocs/i/species/48/; find ./ -type f -name '[A-Z]*.png' -printf "%f\n" | while read file; do ln -s $file ${file,}; done; cd -;
