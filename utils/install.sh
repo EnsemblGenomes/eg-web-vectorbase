@@ -13,7 +13,7 @@ EG_BRANCH=$2
 
 echo ">> Clone Ensembl repos on branch ${ENSEMBL_BRANCH}..."
 
-git-ensembl --branch ${ENSEMBL_BRANCH} --clone web
+git-ensembl --branch ${ENSEMBL_BRANCH} --clone web ensembl-vep
 
 echo ">> Clone eHive v2.2..."
 
