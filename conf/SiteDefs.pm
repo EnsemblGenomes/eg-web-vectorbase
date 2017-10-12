@@ -4,9 +4,9 @@ use Sys::Hostname;
 
 sub update_conf {
 
-  $SiteDefs::SITE_RELEASE_VERSION = '1708';
-  $SiteDefs::SITE_RELEASE_DATE    = 'August 2017';
-  $SiteDefs::VECTORBASE_VERSION   = 'VB-2017-08';
+  $SiteDefs::SITE_RELEASE_VERSION = '1710';
+  $SiteDefs::SITE_RELEASE_DATE    = 'October 2017';
+  $SiteDefs::VECTORBASE_VERSION   = 'VB-2017-10';
 
   $SiteDefs::ENSEMBL_PORT = 8080; 
   $SiteDefs::APACHE_BIN   = '/usr/sbin/httpd';
@@ -19,48 +19,48 @@ sub update_conf {
   $SiteDefs::ENSEMBL_PRIMARY_SPECIES   = 'Anopheles_gambiae';
   $SiteDefs::ENSEMBL_SECONDARY_SPECIES ='Aedes_aegypti';
 
-  $SiteDefs::ENSEMBL_DATASETS = [qw(
-    Aedes_aegypti
-    Aedes_albopictus
-    Anopheles_albimanus
-    Anopheles_arabiensis
-    Anopheles_atroparvus
-    Anopheles_christyi
-    Anopheles_coluzzii
-    Anopheles_culicifacies
-    Anopheles_darlingi
-    Anopheles_dirus
-    Anopheles_epiroticus
-    Anopheles_farauti
-    Anopheles_funestus
-    Anopheles_gambiae
-    Anopheles_gambiae_pimperena
-    Anopheles_maculatus
-    Anopheles_melas
-    Anopheles_merus
-    Anopheles_minimus
-    Anopheles_quadriannulatus
-    Anopheles_sinensis
-    Anopheles_sinensis_china
-    Anopheles_stephensi
-    Anopheles_stephensi_indian
-    Biomphalaria_glabrata
-    Cimex_lectularius
-    Culex_quinquefasciatus
-    Glossina_austeni
-    Glossina_brevipalpis
-    Glossina_fuscipes
-    Glossina_morsitans
-    Glossina_pallidipes
-    Glossina_palpalis
-    Ixodes_scapularis
-    Lutzomyia_longipalpis
-    Musca_domestica
-    Pediculus_humanus
-    Phlebotomus_papatasi
-    Rhodnius_prolixus
-    Sarcoptes_scabiei
-    Stomoxys_calcitrans
+  $SiteDefs::PRODUCTION_NAMES = [qw(
+    aedes_aegypti
+    aedes_albopictus
+    anopheles_albimanus
+    anopheles_arabiensis
+    anopheles_atroparvus
+    anopheles_christyi
+    anopheles_coluzzii
+    anopheles_culicifacies
+    anopheles_darlingi
+    anopheles_dirus
+    anopheles_epiroticus
+    anopheles_farauti
+    anopheles_funestus
+    anopheles_gambiae
+    anopheles_gambiae_pimperena
+    anopheles_maculatus
+    anopheles_melas
+    anopheles_merus
+    anopheles_minimus
+    anopheles_quadriannulatus
+    anopheles_sinensis
+    anopheles_sinensis_china
+    anopheles_stephensi
+    anopheles_stephensi_indian
+    biomphalaria_glabrata
+    cimex_lectularius
+    culex_quinquefasciatus
+    glossina_austeni
+    glossina_brevipalpis
+    glossina_fuscipes
+    glossina_morsitans
+    glossina_pallidipes
+    glossina_palpalis
+    ixodes_scapularis
+    lutzomyia_longipalpis
+    musca_domestica
+    pediculus_humanus
+    phlebotomus_papatasi
+    rhodnius_prolixus
+    sarcoptes_scabiei
+    stomoxys_calcitrans
   )];
 
   @SiteDefs::ENSEMBL_PERL_DIRS    = (
