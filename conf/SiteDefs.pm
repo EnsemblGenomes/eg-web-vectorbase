@@ -107,6 +107,8 @@ sub update_conf {
     'user' => 'ensro',
     'fork' => 4,
   };
+
+  $SiteDefs::GRAPHIC_TTF_PATH = '/nfs/public/rw/ensembl/fonts/truetype/msttcorefonts/';
 }
 
 1;
