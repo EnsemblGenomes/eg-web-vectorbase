@@ -1,19 +1,22 @@
 package EnsEMBL::Web::Controller::Psychic;
 use strict;
-use URI::Escape;
+use warnings;
+
+use URI::Escape qw(uri_escape);
 
 sub psychic {
   my $self          = shift;
   my $hub           = $self->hub;
-  my $species_defs  = $hub->species_defs;
+  my $species_defs  = $self->species_defs;
   my $site_type     = lc $species_defs->ENSEMBL_SITETYPE;
   my $script        = 'Search/Results';
-  my %sp_hash          = %{$species_defs->ENSEMBL_SPECIES_ALIASES};
+  my %sp_hash       = %{$species_defs->multi_val('ENSEMBL_SPECIES_URL_MAP')||{}};
   my $dest_site     = $hub->param('site') || $site_type;
   my $index         = $hub->param('idx')  || undef;
   my $query         = $hub->param('q');
   my $sp_param      = $hub->param('species');
-  my $species       = $sp_param || ($hub->species !~ /^(common|multi)$/i ? $hub->species : undef);
+  my $species       = $sp_param || $hub->species;
+     $species       = '' if $species eq 'Multi';
   my ($url, $site);
 
   if ($species eq 'all' && $dest_site eq 'ensembl') {
@@ -27,9 +30,9 @@ sub psychic {
 
   $species = undef if $dest_site =~ /_all/;
 
-  return $hub->redirect("http://www.ebi.ac.uk/ebisearch/search.ebi?db=allebi&query=$query")                          if $dest_site eq 'ebi';
-  return $hub->redirect("http://www.sanger.ac.uk/search?db=allsanger&t=$query")                                      if $dest_site eq 'sanger';
-  return $hub->redirect("http://www.ensemblgenomes.org/search?site=ensembl&q=$query&site=&x=0&y=0&genomic_unit=all") if $dest_site eq 'ensembl_genomes';
+  return $self->redirect("http://www.ebi.ac.uk/ebisearch/search.ebi?db=allebi&query=$query")                          if $dest_site eq 'ebi';
+  return $self->redirect("http://www.sanger.ac.uk/search?db=allsanger&t=$query")                                      if $dest_site eq 'sanger';
+  return $self->redirect("http://www.ensemblgenomes.org/search?site=ensembl&q=$query&site=&x=0&y=0&genomic_unit=all") if $dest_site eq 'ensembl_genomes';
 
 ## VB 
   my $vb_url = '/search/site/' . uri_escape(uri_escape($query));
@@ -72,6 +75,17 @@ sub psychic {
 
   ## If we have a species and a location can we jump directly to that page ?
   if ($species || $query_species ) {
+
+    if ($query =~ /^rs\d+$/) {
+
+      return $self->redirect($site.$hub->url({
+        'species'   => $species || $query_species,
+        'type'      => 'Variation',
+        'action'    => 'Explore',
+        'v'         => $query
+      }));
+    }
+
     my $real_chrs = $hub->species_defs->ENSEMBL_CHROMOSOMES;
     my $jump_query = $query;
     if ($query_species) {
@@ -95,8 +109,10 @@ sub psychic {
 # /VB
 
     ## match any of the following:
-    if ($jump_query =~ /^\s*([-\.\w]+)[: ]([\d\.]+?[MKG]?)( |-|\.\.|,)([\d\.]+?[MKG]?)$/i || $jump_query =~ /^\s*([-\.\w]+)[: ]([\d,]+[MKG]?)( |\.\.|-)([\d,]+[MKG]?)$/i) {
-      my ($seq_region_name, $start, $end) = ($1, $2, $4);
+    if ($jump_query =~ /^\s*([-\.\w]+)[:]/i ) {
+    #using core api to return location value (see perl documentation for core to see the available combination)
+      my $slice_adaptor = $hub->get_adaptor('get_SliceAdaptor');
+      my ($seq_region_name, $start, $end, $strand) = $slice_adaptor->parse_location_to_values($jump_query);
 
       $seq_region_name =~ s/chr//;
       $seq_region_name =~ s/ //g;
@@ -134,12 +150,11 @@ sub psychic {
       ## str.string-str.string
       $jump_query =~ /([\w|\.]*\w)(\.\.)(\w[\w|\.]*)/;
       $url   = $self->escaped_url("$species_path/jump_to_contig?type1=all;type2=all;anchor1=%s;anchor2=%s", $1, $3);
-      $flag  = 1;
+      $flag = 1;
     }
   }
 
   if (!$flag) {
-    $url = 
 ## VB
       $url = $vb_url;    # everything else!
 ## /VB
@@ -151,6 +166,6 @@ sub psychic {
 
   warn "SITE: $site, URL: $url";
 
-  $hub->redirect($site . $url);
+  $self->redirect($site . $url);
 }
 1;
