@@ -18,8 +18,8 @@ $SiteDefs::ENSEMBL_AUTOPLUGINS = {
   ],
 
   "2!ebi" => [
-    'VB::Hinxton::Prod' => $BASE.'/eg-web-ensembl-configs/vb-hx-prod',
-    #'VB::Hinxton::ArchiveProd' => $BASE.'/eg-web-ensembl-configs/vb-hx-archive-prod',         
+    #'VB::Hinxton::ArchiveProd' => $BASE.'/eg-web-ensembl-configs/vb-hx-archive-prod',  
+    'VB::Hinxton::Prod' => $BASE.'/eg-web-ensembl-configs/vb-hx-prod',     
     'EBI::Hinxton'      => $BASE.'/eg-web-ensembl-configs/eg-hx',    
     @$common,
   ],
