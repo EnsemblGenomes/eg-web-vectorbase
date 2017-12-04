@@ -154,7 +154,7 @@ sub render {
           $html .= qq(<a href="http://pre.ensembl.org/$dir/" style="$link_style" rel="external">$link_text</a> (preview - assembly only));
         }
         else {
-          $html .= qq(<a href="/$dir/Info/Index/"  style="$link_style">$link_text</a>);
+          $html .= qq(<a href="/$dir/Info/Index"  style="$link_style">$link_text</a>);
         }
         unless ($common =~ /\./) {
           my $provider = $info->{'provider'};
