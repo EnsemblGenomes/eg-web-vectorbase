@@ -4,9 +4,9 @@ use Sys::Hostname;
 
 sub update_conf {
 
-  $SiteDefs::SITE_RELEASE_VERSION = '1710';
-  $SiteDefs::SITE_RELEASE_DATE    = 'October 2017';
-  $SiteDefs::VECTORBASE_VERSION   = 'VB-2017-10';
+  $SiteDefs::SITE_RELEASE_VERSION = '1712';
+  $SiteDefs::SITE_RELEASE_DATE    = 'December 2017';
+  $SiteDefs::VECTORBASE_VERSION   = 'VB-2017-12';
 
   $SiteDefs::ENSEMBL_PORT = 8080; 
   $SiteDefs::APACHE_BIN   = '/usr/sbin/httpd';
@@ -17,10 +17,11 @@ sub update_conf {
   $SiteDefs::R2R_BIN      = '/nfs/public/rw/ensembl/tools/R2R-1.0.5/src/r2r';
   
   $SiteDefs::ENSEMBL_PRIMARY_SPECIES   = 'Anopheles_gambiae';
-  $SiteDefs::ENSEMBL_SECONDARY_SPECIES ='Aedes_aegypti';
+  $SiteDefs::ENSEMBL_SECONDARY_SPECIES = 'Aedes_aegypti_lvpagwg';
 
   $SiteDefs::PRODUCTION_NAMES = [qw(
-    aedes_aegypti
+    aedes_aegypti_lvp
+    aedes_aegypti_lvpagwg
     aedes_albopictus
     anopheles_albimanus
     anopheles_arabiensis
