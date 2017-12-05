@@ -17,7 +17,7 @@ while (my $filename = readdir(DEV)) {
   (my $db_and_table = $filename) =~ s/(\.sql?)\.gz$//;
   my ($db_name, $table_name) = split(/\./, $db_and_table);
 
-  my $cmd = "zcat $filename | mysql --host $host --port $port --user $user -p$pass  $db_name";
+  my $cmd = "zcat $filename | mysql --max_allowed_packet=1024M --host $host --port $port --user $user -p$pass  $db_name";
   print "$cmd\n";
   print `$cmd`;
 }

@@ -29,7 +29,7 @@ while (my $filename = readdir(DEV)) {
   
   `$cmd`;
   
-  $cmd = "zcat $filename | mysql --host $host --port $port --user $user -p$pass  $dbname";
+  $cmd = "zcat $filename | mysql --max_allowed_packet=1024M --host $host --port $port --user $user -p$pass  $dbname";
   print "$cmd\n";
   `$cmd`;
 }
