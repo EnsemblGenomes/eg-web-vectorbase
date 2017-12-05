@@ -17,7 +17,7 @@ my @dbs = @{$dbh->selectcol_arrayref(qq/SHOW databases/)};
 print join("\n  ", 'Found:', @dbs) . "\n\n"; 
 
 foreach my $db (@dbs) {
-  my $cmd = "mysqldump --skip-add-locks --quick --host $host --port $port --user $user $db | gzip -c > $db.sql.gz";
+  my $cmd = "mysqldump --max_allowed_packet=1024M --skip-add-locks --quick --host $host --port $port --user $user $db | gzip -c > $db.sql.gz";
   print "$cmd\n";
   `$cmd`;
 }
