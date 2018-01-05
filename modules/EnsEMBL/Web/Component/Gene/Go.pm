@@ -82,7 +82,7 @@ sub biomart_link {
   #my $vschema        = sprintf '%s_mart_%s', $self->hub->species_defs->GENOMIC_UNIT, $SiteDefs::SITE_RELEASE_VERSION;
 ##
   my (@species)      = split /_/, $self->object->species;
-  my $attr_prefix    = lc(substr($species[0], 0, 1) . $species[1] . "_eg_gene");
+  my $attr_prefix    = lc(substr($species[0], 0, 1) . $species[-1] . "_eg_gene");
   my ($ontology)     = split /:/, $term;
   my $biomart_filter = EnsEMBL::Web::Constants::ONTOLOGY_SETTINGS->{$ontology}->{biomart_filter};
 
