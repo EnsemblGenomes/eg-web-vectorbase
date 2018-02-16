@@ -110,6 +110,8 @@ sub update_conf {
   };
 
   $SiteDefs::GRAPHIC_TTF_PATH = '/nfs/public/rw/ensembl/fonts/truetype/msttcorefonts/';
+  
+  push @$SiteDefs::ENSEMBL_EXTRA_INC, '/nfs/public/rw/ensembl/Bio-HTS-2.9', '/nfs/public/rw/ensembl/bioperl-1.6.1';
 }
 
 1;
