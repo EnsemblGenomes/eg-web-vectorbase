@@ -82,7 +82,8 @@ sub europe_pmc_articles {
   my $articles = [];
   my $error    = 0;
   my $query    = sprintf '(EXT_ID:%s)', join ' OR EXT_ID:', @$pubmed_ids;
-  my $uri      = 'http://www.ebi.ac.uk/europepmc/webservices/rest/search/format=json&query=' . uri_escape($query);
+  my $uri      = 'https://www.ebi.ac.uk/europepmc/webservices/rest/search/format=json&query=' . uri_escape($query);
+
   my $response = $self->_user_agent->get($uri);
 
   if ($response->is_success) {
