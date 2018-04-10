@@ -159,6 +159,25 @@
             "assembly": "AgamP4",
             "chromosomes": [
                 "2L",
+                "3L",
+                "X",
+                "3R",
+                "2R",
+                "UNKN",
+                "Y_unplaced",
+                "Mt"
+            ],
+            "filename_template": "\/vectorbase\/ebi\/vcf\/anopheles_gambiae\/g3_snps_AgamP4.vcf.gz",
+            "id": "g3_snps_AgamP4",
+            "species": "anopheles_gambiae",
+            "strict_name_match": 0,
+            "type": "local",
+            "use_seq_region_synonyms": 1
+        },
+        {
+            "assembly": "AgamP4",
+            "chromosomes": [
+                "2L",
                 "2R",
                 "3L"
             ],
