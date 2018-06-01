@@ -94,6 +94,23 @@ color:#B5EE48;
   
 }
 
+#masthead a,
+#masthead span.disabled  {
+  color: [[MH_LINK]]; 
+}
+
+#masthead ul.tools li {  
+  border-right: 1px solid [[MH_TEXT]]; 
+}
+
+#masthead a:hover,
+#masthead span.disabled.toggle:hover {
+   color: [[HOVER]] !important; 
+}
+
+
+
+	
 
 /* SEARCH */
 
