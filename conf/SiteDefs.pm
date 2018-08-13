@@ -4,9 +4,9 @@ use Sys::Hostname;
 
 sub update_conf {
 
-  $SiteDefs::SITE_RELEASE_VERSION = '1806';
-  $SiteDefs::SITE_RELEASE_DATE    = 'June 2018';
-  $SiteDefs::VECTORBASE_VERSION   = 'VB-2018-06';
+  $SiteDefs::SITE_RELEASE_VERSION = '1808';
+  $SiteDefs::SITE_RELEASE_DATE    = 'August 2018';
+  $SiteDefs::VECTORBASE_VERSION   = 'VB-2018-08';
 
   $SiteDefs::ENSEMBL_PORT = 8080; 
   $SiteDefs::APACHE_BIN   = '/usr/sbin/httpd';
