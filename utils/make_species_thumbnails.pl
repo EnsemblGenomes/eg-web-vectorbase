@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/env perl
 
 # script to generate thumbnails from a folder of larger images
 # e.g. to create the 16px thumbnails from the 48px versions
