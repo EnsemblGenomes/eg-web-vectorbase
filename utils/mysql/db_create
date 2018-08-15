@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use Getopt::Long;
 
-my ($host, $port, $user, $pass, $skip) = ('localhost', '3306', 'ensrw', undef, undef);
+my ($host, $port, $user, $pass, $skip) = ('localhost', '3306', 'ensadmin', undef, undef);
 GetOptions ("host=s" => \$host, "port=s" => \$port, "user=s" => \$user, 'pass=s' => \$pass, 'skip' => \$skip);
 
 my $regex = $ARGV[0];
