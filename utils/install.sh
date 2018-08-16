@@ -51,9 +51,6 @@ cd eg-web-vectorbase/htdocs/i/species/48/; find ./ -type f -name '[A-Z]*.png' -p
 
 cp eg-web-vectorbase/htdocs/i/species/64/* eg-web-vectorbase/htdocs/i/species/
 
-echo ">> Make tmp dir..."
-
-mkdir tmp
 
 echo ">> Init..."
 

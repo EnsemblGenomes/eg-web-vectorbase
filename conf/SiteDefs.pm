@@ -1,20 +1,61 @@
 package EG::Vectorbase::SiteDefs;
 use strict;
 use Sys::Hostname;
+use Cwd qw(abs_path);
+use List::MoreUtils qw(uniq);
 
 sub update_conf {
+
+
+
+  my $release = "vb_".$SiteDefs::ENSEMBL_VERSION;
 
   $SiteDefs::SITE_RELEASE_VERSION = '1808';
   $SiteDefs::SITE_RELEASE_DATE    = 'August 2018';
   $SiteDefs::VECTORBASE_VERSION   = 'VB-2018-08';
 
   $SiteDefs::ENSEMBL_PORT = 8080; 
-  $SiteDefs::APACHE_BIN   = '/usr/sbin/httpd';
-  $SiteDefs::APACHE_DIR   = '/etc/httpd';
-  $SiteDefs::SAMTOOLS_DIR = '/nfs/public/rw/ensembl/samtools';
-  $SiteDefs::MWIGGLE_DIR  = '/nfs/public/rw/ensembl/tools/mwiggle/';
-  $SiteDefs::HTSLIB_DIR   = '/nfs/public/rw/ensembl/tools/htslib/';
-  $SiteDefs::R2R_BIN      = '/nfs/public/rw/ensembl/tools/R2R-1.0.5/src/r2r';
+
+  $SiteDefs::ENSEMBL_TMP_ROOT               = '/ebi/nobackup';
+  $SiteDefs::ENSEMBL_USERDATA_ROOT          = '/ebi/incoming';
+  $SiteDefs::DATAFILE_ROOT                  = '/ebi/ensweb-data';
+
+
+  $SiteDefs::ENSEMBL_TMP_DIR                = defer { $SiteDefs::ENSEMBL_TMP_ROOT."/vb_".$SiteDefs::ENSEMBL_VERSION };
+  $SiteDefs::ENSEMBL_SYS_DIR                = defer { "$SiteDefs::ENSEMBL_TMP_DIR/server" };
+  $SiteDefs::ENSEMBL_USERDATA_DIR           = defer { $SiteDefs::ENSEMBL_USERDATA_ROOT.'/vb' };
+  $SiteDefs::DATAFILE_BASE_PATH             = undef; # not used for EG as VCF files are stored on remote ftp/http servers 
+
+
+  $SiteDefs::ENSEMBL_MINIFIED_FILES_PATH    = defer { "$SiteDefs::ENSEMBL_SYS_DIR/minified" }; 
+  
+
+  $SiteDefs::SHARED_SOFTWARE_PATH           = "/ebi/ensweb-software/sharedsw/$release";
+  $SiteDefs::SHARED_SOFTWARE_BIN_PATH       = defer { join ':', uniq($SiteDefs::SHARED_SOFTWARE_PATH.'/linuxbrew/bin', split(':', $ENV{'PATH'} || ())) };
+  $SiteDefs::ENSEMBL_SETENV->{'PATH'}       = 'SHARED_SOFTWARE_BIN_PATH';
+
+
+  $SiteDefs::APACHE_BIN                     = defer { $SiteDefs::SHARED_SOFTWARE_PATH.'/paths/apache/httpd' };
+  $SiteDefs::APACHE_DIR                     = defer { $SiteDefs::SHARED_SOFTWARE_PATH.'/paths/apache/' };
+  $SiteDefs::BIOPERL_DIR                    = defer { $SiteDefs::SHARED_SOFTWARE_PATH.'/paths/bioperl/' };
+  $SiteDefs::VCFTOOLS_PERL_LIB              = defer { $SiteDefs::SHARED_SOFTWARE_PATH.'/paths/vcftools_perl_lib/' };
+  $SiteDefs::TABIX                          = defer { $SiteDefs::SHARED_SOFTWARE_PATH.'/paths/tabix' };
+  $SiteDefs::SAMTOOLS                       = defer { $SiteDefs::SHARED_SOFTWARE_PATH.'/paths/samtools' };
+  $SiteDefs::BGZIP                          = defer { $SiteDefs::SHARED_SOFTWARE_PATH.'/paths/bgzip' };
+  $SiteDefs::HTSLIB_DIR                     = defer { $SiteDefs::SHARED_SOFTWARE_PATH.'/paths/htslib' };
+  $SiteDefs::R2R_BIN                        = defer { $SiteDefs::SHARED_SOFTWARE_PATH.'/paths/r2r' };
+  $SiteDefs::HUBCHECK_BIN                   = defer { $SiteDefs::SHARED_SOFTWARE_PATH.'/utils/hubCheck' };
+  $SiteDefs::ENSEMBL_JAVA                   = defer { $SiteDefs::SHARED_SOFTWARE_PATH.'/paths/java' };
+  $SiteDefs::ENSEMBL_EMBOSS_PATH            = defer { $SiteDefs::SHARED_SOFTWARE_PATH.'/paths/emboss' };   #AlignView
+  $SiteDefs::ENSEMBL_WISE2_PATH             = defer { $SiteDefs::SHARED_SOFTWARE_PATH.'/paths/genewise' }; #AlignView
+  $SiteDefs::THOUSANDG_TOOLS_DIR            = defer { $SiteDefs::SHARED_SOFTWARE_PATH.'/1000G-tools' }; #location of all 1000G tools runnable and scripts
+
+
+  $SiteDefs::GRAPHIC_TTF_PATH               = defer { $SiteDefs::SHARED_SOFTWARE_PATH.'/fonts/' };
+
+
+#  $SiteDefs::MWIGGLE_DIR  = '/nfs/public/rw/ensembl/tools/mwiggle/';
+
   
   $SiteDefs::ENSEMBL_PRIMARY_SPECIES   = 'Anopheles_gambiae';
   $SiteDefs::ENSEMBL_SECONDARY_SPECIES = 'Aedes_aegypti_lvpagwg';
@@ -64,11 +105,6 @@ sub update_conf {
     stomoxys_calcitrans
   )];
 
-  @SiteDefs::ENSEMBL_PERL_DIRS    = (
-    $SiteDefs::ENSEMBL_WEBROOT.'/perl',
-    $SiteDefs::ENSEMBL_SERVERROOT.'/eg-plugins/common/perl',
-    $SiteDefs::ENSEMBL_SERVERROOT.'/eg-plugins/vectorbase/perl',
-  );
 
   $SiteDefs::ENSEMBL_SITENAME       = 'VectorBase';
   $SiteDefs::ENSEMBL_SITE_NAME      = 'VectorBase';
@@ -76,42 +112,37 @@ sub update_conf {
   $SiteDefs::ENSEMBL_HELPDESK_EMAIL = 'info@vectorbase.org';
   $SiteDefs::ENSEMBL_SERVERADMIN    = 'webmaster@vectorbase.org';
   $SiteDefs::ENSEMBL_MAIL_SERVER    = 'smtp.vectorbase.org';
-  $SiteDefs::SITE_FTP               = '/downloads';
-  
+
   $SiteDefs::VECTORBASE_SEARCH_SITE        = $SiteDefs::ENSEMBL_BASE_URL;
   $SiteDefs::VECTORBASE_EXPRESSION_BROWSER = $SiteDefs::ENSEMBL_BASE_URL . '/expression-browser';
   $SiteDefs::VECTORBASE_SAMPLE_SEARCH_URL  = $SiteDefs::ENSEMBL_BASE_URL . '/popbio/sample-explorer';
-  #$SiteDefs::VECTORBASE_SAMPLE_SEARCH_URL  = 'http://gunpowder.ebi.ac.uk:10971/popbio/sample-explorer';
-  #$SiteDefs::VECTORBASE_SAMPLE_SEARCH_URL   = 'http://gunpowder.ebi.ac.uk:10971';
   
   $SiteDefs::ENSEMBL_LOGINS = 0;
-  $siteDefs::UDC_CACHEDIR = '/tmp';
 
   $SiteDefs::ENSEMBL_BLAST_ENABLED = 0;
 
-  # Assembly converter
+ # Assembly converter
   $SiteDefs::ENSEMBL_AC_ENABLED          = 1;
-  $SiteDefs::ASSEMBLY_CONVERTER_BIN_PATH = '/nfs/public/rw/ensembl/python/bin/CrossMap.py';
-  $SiteDefs::ENSEMBL_CHAIN_FILE_DIR      = '/vectorbase/data/assembly_converter';
+  $SiteDefs::ASSEMBLY_CONVERTER_BIN_PATH = defer { $SiteDefs::SHARED_SOFTWARE_PATH.'/paths/CrossMap.py' };
+  $SiteDefs::ENSEMBL_CHAIN_FILE_DIR      = defer { $SiteDefs::DATAFILE_ROOT.'/tools/assembly_converter/'};
   
-  # VEP    
+
+# VEP    
   $SiteDefs::ENSEMBL_VEP_ENABLED   = 1;
   $SiteDefs::ENSEMBL_VEP_CACHE_DIR = undef; # no cache
   $SiteDefs::ENSEMBL_VEP_FILTER_SCRIPT_OPTIONS = {
-    '-host' => 'localhost',
+    '-host' => '127.0.0.1',
     '-port' => '3306',
     '-user' => 'ensro',
   };
   $SiteDefs::ENSEMBL_VEP_SCRIPT_DEFAULT_OPTIONS = {
-    'host' => 'localhost',
+    'host' => '127.0.0.1',
     'port' => '3306',
     'user' => 'ensro',
     'fork' => 4,
   };
 
-  $SiteDefs::GRAPHIC_TTF_PATH = '/nfs/public/rw/ensembl/fonts/truetype/msttcorefonts/';
   
-  push @$SiteDefs::ENSEMBL_EXTRA_INC, '/nfs/public/rw/ensembl/Bio-HTS-2.9', '/nfs/public/rw/ensembl/bioperl-1.6.1';
 }
 
 1;
