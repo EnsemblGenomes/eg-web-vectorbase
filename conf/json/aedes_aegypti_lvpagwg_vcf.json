@@ -1254,6 +1254,20 @@
             "strict_name_match": 0,
             "type": "local",
             "use_seq_region_synonyms": 1
+        },
+        {
+            "assembly": "AaegL5",
+            "chromosomes": [
+                "1",
+                "2",
+                "3"
+            ],
+            "filename_template": "\/vectorbase\/ebi\/vcf\/aedes_aegypti_lvpagwg\/Kotsakiozi_2018_Africa_AaegL5.vcf.gz",
+            "id": "Kotsakiozi_2018_Africa_AaegL5",
+            "species": "aedes_aegypti_lvpagwg",
+            "strict_name_match": 0,
+            "type": "local",
+            "use_seq_region_synonyms": 1
         }
     ]
 }
