@@ -58,4 +58,4 @@ echo ">> Init..."
 
 echo ">> Build inline C..."
 
-./eg-web-common/utils/build_inline_c.pl
+./ensembl-webcode/ctrl_scripts/build_inline_c
