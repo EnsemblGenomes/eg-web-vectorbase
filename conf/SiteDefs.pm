@@ -21,7 +21,7 @@ sub update_conf {
   $SiteDefs::DATAFILE_ROOT                  = '/ebi/ensweb-data';
 
 
-  $SiteDefs::ENSEMBL_TMP_DIR                = defer { $SiteDefs::ENSEMBL_TMP_ROOT."/vb_".$SiteDefs::ENSEMBL_VERSION };
+  $SiteDefs::ENSEMBL_TMP_DIR                = defer { $SiteDefs::ENSEMBL_TMP_ROOT . "/" . $SiteDefs::VECTORBASE_VERSION };
   $SiteDefs::ENSEMBL_SYS_DIR                = defer { "$SiteDefs::ENSEMBL_TMP_DIR/server" };
   $SiteDefs::ENSEMBL_USERDATA_DIR           = defer { $SiteDefs::ENSEMBL_USERDATA_ROOT.'/vb' };
   $SiteDefs::DATAFILE_BASE_PATH             = undef; # not used for EG as VCF files are stored on remote ftp/http servers 
