@@ -142,7 +142,7 @@ sub render {
 
       $html .= qq(<td style="width:8%;text-align:right;padding-bottom:1em">);
       if ($dir) {
-        $html .= qq(<img class="species-img" style="width:40px;height:40px" src="/i/species/48/$dir.png" alt="$name">);
+        $html .= qq(<img class="species-img" style="width:40px;height:40px" src="/i/species/$dir.png" alt="$name">);
       }
       else {
         $html .= '&nbsp;';
