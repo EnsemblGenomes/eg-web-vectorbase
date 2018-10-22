@@ -88,7 +88,7 @@ sub add_individual_selector {
   $self->add_fieldset('Sample search')->append_child('div', { 
     inner_HTML => qq{
         <p>
-          Try the new Sample Search (beta)
+          Try the new Sample Search
         </p>
         <p>
           <a class="button no_img " href="$ss_url" title="Click to launch Sample Search" target="_blank">Launch Sample Search</a>
