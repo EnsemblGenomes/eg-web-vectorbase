@@ -26,37 +26,8 @@ sub update_conf {
   $SiteDefs::ENSEMBL_USERDATA_DIR           = defer { $SiteDefs::ENSEMBL_USERDATA_ROOT.'/vb' };
   $SiteDefs::DATAFILE_BASE_PATH             = undef; # not used for EG as VCF files are stored on remote ftp/http servers 
 
-
   $SiteDefs::ENSEMBL_MINIFIED_FILES_PATH    = defer { "$SiteDefs::ENSEMBL_SYS_DIR/minified" }; 
-  
 
-  $SiteDefs::SHARED_SOFTWARE_PATH           = "/ebi/ensweb-software/sharedsw/$release";
-  $SiteDefs::SHARED_SOFTWARE_BIN_PATH       = defer { join ':', uniq($SiteDefs::SHARED_SOFTWARE_PATH.'/linuxbrew/bin', split(':', $ENV{'PATH'} || ())) };
-  $SiteDefs::ENSEMBL_SETENV->{'PATH'}       = 'SHARED_SOFTWARE_BIN_PATH';
-
-
-  $SiteDefs::APACHE_BIN                     = defer { $SiteDefs::SHARED_SOFTWARE_PATH.'/paths/apache/httpd' };
-  $SiteDefs::APACHE_DIR                     = defer { $SiteDefs::SHARED_SOFTWARE_PATH.'/paths/apache/' };
-  $SiteDefs::BIOPERL_DIR                    = defer { $SiteDefs::SHARED_SOFTWARE_PATH.'/paths/bioperl/' };
-  $SiteDefs::VCFTOOLS_PERL_LIB              = defer { $SiteDefs::SHARED_SOFTWARE_PATH.'/paths/vcftools_perl_lib/' };
-  $SiteDefs::TABIX                          = defer { $SiteDefs::SHARED_SOFTWARE_PATH.'/paths/tabix' };
-  $SiteDefs::SAMTOOLS                       = defer { $SiteDefs::SHARED_SOFTWARE_PATH.'/paths/samtools' };
-  $SiteDefs::BGZIP                          = defer { $SiteDefs::SHARED_SOFTWARE_PATH.'/paths/bgzip' };
-  $SiteDefs::HTSLIB_DIR                     = defer { $SiteDefs::SHARED_SOFTWARE_PATH.'/paths/htslib' };
-  $SiteDefs::R2R_BIN                        = defer { $SiteDefs::SHARED_SOFTWARE_PATH.'/paths/r2r' };
-  $SiteDefs::HUBCHECK_BIN                   = defer { $SiteDefs::SHARED_SOFTWARE_PATH.'/utils/hubCheck' };
-  $SiteDefs::ENSEMBL_JAVA                   = defer { $SiteDefs::SHARED_SOFTWARE_PATH.'/paths/java' };
-  $SiteDefs::ENSEMBL_EMBOSS_PATH            = defer { $SiteDefs::SHARED_SOFTWARE_PATH.'/paths/emboss' };   #AlignView
-  $SiteDefs::ENSEMBL_WISE2_PATH             = defer { $SiteDefs::SHARED_SOFTWARE_PATH.'/paths/genewise' }; #AlignView
-  $SiteDefs::THOUSANDG_TOOLS_DIR            = defer { $SiteDefs::SHARED_SOFTWARE_PATH.'/1000G-tools' }; #location of all 1000G tools runnable and scripts
-
-
-  $SiteDefs::GRAPHIC_TTF_PATH               = defer { $SiteDefs::SHARED_SOFTWARE_PATH.'/fonts/' };
-
-
-#  $SiteDefs::MWIGGLE_DIR  = '/nfs/public/rw/ensembl/tools/mwiggle/';
-
-  
   $SiteDefs::ENSEMBL_PRIMARY_SPECIES   = 'Anopheles_gambiae';
   $SiteDefs::ENSEMBL_SECONDARY_SPECIES = 'Aedes_aegypti_lvpagwg';
 

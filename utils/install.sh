@@ -35,20 +35,21 @@ echo ">> Make logs dir..."
 
 mkdir -pv logs
 
-if [[ "$HOSTNAME" =~ "ebi" ]]
-  then
-    echo ">> Clone EBI plugins..."
-    git clone git@github.com:EnsemblGenomes/eg-web-ensembl-configs.git
-    cp -rv eg-web-ensembl-configs/my-plugins .
-fi 
-
-echo ">> Linking VCF configs..."
-ln -s /vectorbase/ebi/config/charlie/vcf_json eg-web-vectorbase/conf/json
-
-echo ">> Init..."
-
-./ensembl-webcode/ctrl_scripts/init
-
 echo ">> Build inline C..."
 
 ./ensembl-webcode/ctrl_scripts/build_inline_c
+
+if [[ "$HOSTNAME" =~ "vectorbase" ]]
+  then
+    # Running at ND, we can do a few more things...
+
+    echo ">> Linking VCF configs..."
+
+    ln -s /vectorbase/ebi/config/charlie/vcf_json eg-web-vectorbase/conf/json
+
+    echo ">> Init..."
+
+    ./ensembl-webcode/ctrl_scripts/init
+fi 
+
+
