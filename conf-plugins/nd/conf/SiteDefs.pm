@@ -1,8 +1,11 @@
-package ND::Pre::SiteDefs;
+package ND::SiteDefs;
 use strict;
 use Sys::Hostname;
+use List::MoreUtils qw(uniq);
 
 sub update_conf {
+
+  my $release = "vb_".$SiteDefs::ENSEMBL_VERSION;
 
   my $hostname = hostname;
 
