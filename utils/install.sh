@@ -24,7 +24,8 @@ git-ensembl --branch version/2.2 --clone ensembl-hive
 echo ">> Cloning EG repos on branch ${EG_BRANCH}..."
 
 git-ensembl --branch ${EG_BRANCH} --clone eg-web-common
-git-ensembl --branch ${EG_BRANCH} --clone ensemblgenomes-api
+git-ensembl --branch ${ENSEMBL_BRANCH} --clone ensembl-metadata
+git-ensembl --clone ensembl-taxonomy
 
 echo ">> Copy configs..."
 
