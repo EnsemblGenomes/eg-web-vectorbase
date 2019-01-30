@@ -32,7 +32,6 @@ sub update_conf {
   $SiteDefs::ENSEMBL_SECONDARY_SPECIES = 'Aedes_aegypti_lvpagwg';
 
   $SiteDefs::PRODUCTION_NAMES = [qw(
-    aedes_aegypti_lvp
     aedes_aegypti_lvpagwg
     aedes_albopictus
     anopheles_albimanus
