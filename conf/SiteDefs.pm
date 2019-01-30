@@ -10,9 +10,9 @@ sub update_conf {
 
   my $release = "vb_".$SiteDefs::ENSEMBL_VERSION;
 
-  $SiteDefs::SITE_RELEASE_VERSION = '1812';
-  $SiteDefs::SITE_RELEASE_DATE    = 'December 2018';
-  $SiteDefs::VECTORBASE_VERSION   = 'VB-2018-12';
+  $SiteDefs::SITE_RELEASE_VERSION = '1902';
+  $SiteDefs::SITE_RELEASE_DATE    = 'Februray 2019';
+  $SiteDefs::VECTORBASE_VERSION   = 'VB-2019-02';
 
   $SiteDefs::ENSEMBL_PORT = 8080; 
 
