@@ -2642,8 +2642,8 @@
                 "KB671597",
                 "KB672281"
             ],
-            "filename_template": "\/vectorbase\/ebi\/vcf\/anopheles_epiroticus\/QC_filtered_epiroticus_resistant.vcf.gz",
-            "id": "QC_filtered_epiroticus_resistant",
+            "filename_template": "\/vectorbase\/ebi\/vcf\/anopheles_epiroticus\/VBP0000119_QC_filtered_epiroticus_resistant.vcf.gz",
+            "id": "VBP0000119_QC_filtered_epiroticus_resistant",
             "species": "anopheles_epiroticus",
             "strict_name_match": 0,
             "type": "local",
@@ -5284,8 +5284,8 @@
                 "KB671597",
                 "KB672281"
             ],
-            "filename_template": "\/vectorbase\/ebi\/vcf\/anopheles_epiroticus\/QC_filtered_epiroticus_sensitive.vcf.gz",
-            "id": "QC_filtered_epiroticus_sensitive",
+            "filename_template": "\/vectorbase\/ebi\/vcf\/anopheles_epiroticus\/VBP0000119_QC_filtered_epiroticus_sensitive.vcf.gz",
+            "id": "VBP0000119_QC_filtered_epiroticus_sensitive",
             "species": "anopheles_epiroticus",
             "strict_name_match": 0,
             "type": "local",
