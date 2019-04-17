@@ -67,6 +67,7 @@ sub update_conf {
     glossina_palpalis
     ixodes_scapularis
     lutzomyia_longipalpis
+    leptotrombidium_deliense
     musca_domestica
     pediculus_humanus
     phlebotomus_papatasi
