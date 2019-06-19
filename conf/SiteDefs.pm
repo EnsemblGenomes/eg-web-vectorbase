@@ -39,6 +39,7 @@ sub update_conf {
     anopheles_atroparvus
     anopheles_christyi
     anopheles_coluzzii
+    anopheles_coluzzii_ngousso
     anopheles_culicifacies
     anopheles_darlingi
     anopheles_dirus
@@ -66,6 +67,7 @@ sub update_conf {
     glossina_pallidipes
     glossina_palpalis
     ixodes_scapularis
+    ixodes_scapularis_ise6
     lutzomyia_longipalpis
     leptotrombidium_deliense
     musca_domestica
